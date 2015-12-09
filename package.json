@@ -1,0 +1,36 @@
+{
+  "name": "hubot-slack-github-issues",
+  "version": "0.0.0",
+  "description": "Hubot script using the Slack Real Time Messaging API to file GitHub issues",
+  "main": "index.js",
+  "scripts": {
+    "test": "gulp test",
+    "lint": "gulp lint"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/18F/hubot-slack-github-issues.git"
+  },
+  "keywords": [
+    "slack",
+    "github"
+  ],
+  "author": "Mike Bland <michael.bland@gsa.gov> (https://18f.gsa.gov/)",
+  "license": "CC0-1.0",
+  "bugs": {
+    "url": "https://github.com/18F/hubot-slack-github-issues/issues"
+  },
+  "homepage": "https://github.com/18F/hubot-slack-github-issues#readme",
+  "peerDependencies": {
+    "hubot": "2.x"
+  },
+  "devDependencies": {
+    "gulp": "^3.9.0",
+    "gulp-jshint": "^2.0.0",
+    "jshint": "^2.8.0"
+  },
+  "dependencies": {
+    "github-client": "^0.8.0",
+    "slack-client": "l12s/node-slack-client#c2a460a80a9bd6af6c5f1c7eeaa4dc73d001bd18"
+  }
+}
