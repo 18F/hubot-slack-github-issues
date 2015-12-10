@@ -21,8 +21,41 @@ npm install hubot-slack-github-issues --save
 [
   "hubot-slack-github-issues"
 ]
-
 ```
+
+## Configuration
+
+You'll need to create a JSON file conforming to the following schema:
+
+* *githubUser*: GitHub username
+* *githubToken*: GitHub API token
+* *githubTimeout*: GitHub API timeout limit in milliseconds
+* *rules*: defines each condition that will result in a new GitHub issue
+  * *reactionName* name of the reaction emoji triggering the rule
+  * *githubRepository*: GitHub repository to which to post issues
+  * *channelName (optional)*: name of the Slack channel triggering the rule;
+    leave undefined to match messages in _any_ Slack channel
+
+For example:
+
+```json
+{
+  "githubUser": "mbland",
+  "githubToken": "<mbland-api-token>",
+  "githubTimeout": 5000,
+  "rules": [
+    {
+      "reactionName": "evergreen_tree",
+      "githubRepository": "18F/handbook"
+    }
+  ]
+}
+```
+
+The path to this configuration file should be made available to the running
+Hubot instance via the `HUBOT_SLACK_GITHUB_ISSUES_CONFIG_PATH` environment
+variable.
+
 ## Public domain
 
 This project is in the worldwide [public domain](LICENSE.md). As stated in
