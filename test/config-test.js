@@ -13,13 +13,13 @@ chai.should();
 
 function newBaseConfig() {
   return {
-    'githubUser': 'mbland',
-    'githubToken': '<mbland-api-token>',
+    'githubUser': '18F',
+    'githubToken': '<18F-api-token>',
     'githubTimeout': 5000,
     'rules': [
       {
         'reactionName': 'evergreen_tree',
-        'githubRepository': '18F/handbook'
+        'githubRepository': 'handbook'
       }
     ]
   };
