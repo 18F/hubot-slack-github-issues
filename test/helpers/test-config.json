@@ -5,6 +5,17 @@
   "rules": [
     {
       "reactionName": "evergreen_tree",
+      "githubRepository": "hub",
+      "channelName": "hub"
+    },
+
+    {
+      "reactionName": "smiley",
+      "githubRepository": "hubot-slack-github-issues"
+    },
+
+    {
+      "reactionName": "evergreen_tree",
       "githubRepository": "handbook"
     }
   ]

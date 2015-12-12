@@ -37,15 +37,6 @@ describe('Rule', function() {
     expect(client.channelId).to.be.undefined;
   });
 
-  it('should ignore a message if its type does not match', function() {
-    var rule = new Rule(helpers.configRule()),
-        message = helpers.reactionAddedMessage(),
-        client = new FakeSlackClient('hub');
-    message.type = 'hello';
-    expect(rule.match(message, client)).to.be.false;
-    expect(client.channelId).to.be.undefined;
-  });
-
   it('should ignore a message if its name does not match', function() {
     var rule = new Rule(helpers.configRule()),
         message = helpers.reactionAddedMessage().rawMessage,
