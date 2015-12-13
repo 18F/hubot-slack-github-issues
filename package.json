@@ -17,7 +17,8 @@
     "gulp-jshint": "^2.0.0",
     "gulp-mocha": "^2.2.0",
     "jshint": "^2.8.0",
-    "mocha": "^2.3.4"
+    "mocha": "^2.3.4",
+    "yargs": "^3.31.0"
   },
   "scripts": {
     "test": "gulp test",
