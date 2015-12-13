@@ -6,7 +6,6 @@
 var Config = require('../lib/config');
 var helpers = require('./helpers');
 var chai = require('chai');
-var fs = require('fs');
 var path = require('path');
 
 var expect = chai.expect;
@@ -86,18 +85,10 @@ describe('Config', function() {
   });
 
   it('should load from HUBOT_SLACK_GITHUB_ISSUES_CONFIG_PATH', function() {
-    var testConfigPath = path.join(__dirname, 'test-config.json'),
+    var testConfigPath = path.join(__dirname, 'helpers', 'test-config.json'),
         baseConfig = helpers.baseConfig();
     process.env.HUBOT_SLACK_GITHUB_ISSUES_CONFIG_PATH = testConfigPath;
-    fs.writeFileSync(testConfigPath, JSON.stringify(baseConfig), 'utf8');
-
-    try {
-      var config = new Config();
-      expect(JSON.stringify(config)).to.eql(JSON.stringify(baseConfig));
-    } catch (err) {
-      throw err;
-    } finally {
-      fs.unlinkSync(testConfigPath);
-    }
+    var config = new Config();
+    expect(JSON.stringify(config)).to.eql(JSON.stringify(baseConfig));
   });
 });
