@@ -4,6 +4,7 @@
   "description": "Hubot script using the Slack Real Time Messaging API to file GitHub issues",
   "main": "index.js",
   "dependencies": {
+    "github": "^0.2.4",
     "slack-client": "l12s/node-slack-client#fac6b9659a0b82a5b302ba3a972e66cae983af57"
   },
   "peerDependencies": {
