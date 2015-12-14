@@ -5,8 +5,6 @@
 'use strict';
 
 var Rule = require('../lib/rule');
-var RTM_EVENTS = require('slack-client/lib/clients/rtm/events/rtm-events');
-var REACTION_ADDED = RTM_EVENTS.EVENTS.REACTION_ADDED;
 var chai = require('chai');
 
 var expect = chai.expect;
@@ -25,7 +23,7 @@ function newConfigRule() {
 
 function newReactionAddedMessage() {
   return {
-    type: REACTION_ADDED,
+    type: 'reaction_added',
     user: USER_ID,
     name: 'smiley',
     item: {
@@ -82,7 +80,7 @@ describe('Rule', function() {
     var rule = new Rule(newConfigRule()),
         message = newReactionAddedMessage(),
         client = new FakeSlackClient('hub');
-    message.type = RTM_EVENTS.EVENTS.HELLO;
+    message.type = 'hello';
     expect(rule.match(message, client)).to.be.false;
     expect(client.channelId).to.be.undefined;
   });
