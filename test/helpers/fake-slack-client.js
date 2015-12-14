@@ -2,6 +2,8 @@
 
 'use strict';
 
+var Channel = require('slack-client/src/channel');
+
 module.exports = FakeSlackClient;
 
 function FakeSlackClient(channelName) {
@@ -10,5 +12,7 @@ function FakeSlackClient(channelName) {
 
 FakeSlackClient.prototype.getChannelByID = function(channelId) {
   this.channelId = channelId;
-  return { name: this.channelName };
+  // https://api.slack.com/types/channel
+  return new Channel(this,
+    { id: channelId, name: this.channelName, 'is_channel': true });
 };

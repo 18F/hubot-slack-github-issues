@@ -31,7 +31,7 @@ describe('GitHubClient', function() {
         api = new FakeGitHubApi(issueUrl, null, helpers.githubParams()),
         client = new GitHubClient(config, api);
     return client.fileNewIssue(
-      helpers.metadata(), 'handbook', helpers.message())
+      helpers.metadata(), 'handbook', helpers.targetMessage().text)
       .should.eventually.equal(issueUrl);
   });
 
@@ -40,7 +40,7 @@ describe('GitHubClient', function() {
         api = new FakeGitHubApi(null, errorMsg, helpers.githubParams()),
         client = new GitHubClient(config, api);
     return client.fileNewIssue(
-      helpers.metadata(), 'handbook', helpers.message())
+      helpers.metadata(), 'handbook', helpers.targetMessage().text)
       .should.be.rejectedWith(Error, errorMsg);
   });
 });
