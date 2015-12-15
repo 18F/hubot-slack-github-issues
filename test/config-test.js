@@ -4,36 +4,22 @@
 'use strict';
 
 var Config = require('../lib/config');
+var helpers = require('./helpers');
 var chai = require('chai');
-var fs = require('fs');
 var path = require('path');
 
 var expect = chai.expect;
 chai.should();
 
-function newBaseConfig() {
-  return {
-    'githubUser': '18F',
-    'githubToken': '<18F-api-token>',
-    'githubTimeout': 5000,
-    'rules': [
-      {
-        'reactionName': 'evergreen_tree',
-        'githubRepository': 'handbook'
-      }
-    ]
-  };
-}
-
 describe('Config', function() {
   it('should validate the base config', function() {
-    var baseConfig = newBaseConfig(),
+    var baseConfig = helpers.baseConfig(),
         config = new Config(baseConfig);
     expect(JSON.stringify(config)).to.equal(JSON.stringify(baseConfig));
   });
 
   it('should validate a rule specifying a channel', function() {
-    var configWithChannelRule = newBaseConfig(),
+    var configWithChannelRule = helpers.baseConfig(),
         config;
     
     configWithChannelRule.rules.push({
@@ -58,7 +44,7 @@ describe('Config', function() {
   });
 
   it('should raise errors for missing required rules fields', function() {
-    var config = newBaseConfig(),
+    var config = helpers.baseConfig(),
         errors;
 
     delete config.rules[0].reactionName;
@@ -74,7 +60,7 @@ describe('Config', function() {
   });
 
   it('should raise errors for unknown properties', function() {
-    var config = newBaseConfig(),
+    var config = helpers.baseConfig(),
         errors;
 
     config.foo = {};
@@ -99,18 +85,10 @@ describe('Config', function() {
   });
 
   it('should load from HUBOT_SLACK_GITHUB_ISSUES_CONFIG_PATH', function() {
-    var testConfigPath = path.join(__dirname, 'test-config.json'),
-        baseConfig = newBaseConfig();
+    var testConfigPath = path.join(__dirname, 'helpers', 'test-config.json'),
+        baseConfig = helpers.baseConfig();
     process.env.HUBOT_SLACK_GITHUB_ISSUES_CONFIG_PATH = testConfigPath;
-    fs.writeFileSync(testConfigPath, JSON.stringify(baseConfig), 'utf8');
-
-    try {
-      var config = new Config();
-      expect(JSON.stringify(config)).to.eql(JSON.stringify(baseConfig));
-    } catch (err) {
-      throw err;
-    } finally {
-      fs.unlinkSync(testConfigPath);
-    }
+    var config = new Config();
+    expect(JSON.stringify(config)).to.eql(JSON.stringify(baseConfig));
   });
 });
