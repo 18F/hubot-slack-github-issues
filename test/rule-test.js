@@ -22,7 +22,7 @@ describe('Rule', function() {
 
   it('should match a channel-specific message', function() {
     var rule = new Rule(helpers.configRule()),
-        message = helpers.reactionAddedMessage(),
+        message = helpers.reactionAddedMessage().rawMessage,
         client = new FakeSlackClient('hub');
     expect(rule.match(message, new SlackClient(client))).to.be.true;
     expect(client.channelId).to.eql(helpers.CHANNEL_ID);
@@ -30,7 +30,7 @@ describe('Rule', function() {
 
   it('should match a non-channel-specific message', function() {
     var rule = new Rule(helpers.configRule()),
-        message = helpers.reactionAddedMessage(),
+        message = helpers.reactionAddedMessage().rawMessage,
         client = new FakeSlackClient('not-the-hub');
     delete rule.channelName;
     expect(rule.match(message, new SlackClient(client))).to.be.true;
@@ -48,7 +48,7 @@ describe('Rule', function() {
 
   it('should ignore a message if its name does not match', function() {
     var rule = new Rule(helpers.configRule()),
-        message = helpers.reactionAddedMessage(),
+        message = helpers.reactionAddedMessage().rawMessage,
         client = new FakeSlackClient('hub');
     message.name = 'sad-face';
     expect(rule.match(message, new SlackClient(client))).to.be.false;
@@ -57,7 +57,7 @@ describe('Rule', function() {
 
   it('should ignore a message if this is not the first reaction', function() {
     var rule = new Rule(helpers.configRule()),
-        message = helpers.reactionAddedMessage(),
+        message = helpers.reactionAddedMessage().rawMessage,
         client = new FakeSlackClient('hub');
     message.item.message.reactions[0].count = 2;
     expect(rule.match(message, new SlackClient(client))).to.be.false;
@@ -66,7 +66,7 @@ describe('Rule', function() {
 
   it('should ignore a message if the inner reaction isn\'t found', function() {
     var rule = new Rule(helpers.configRule()),
-        message = helpers.reactionAddedMessage(),
+        message = helpers.reactionAddedMessage().rawMessage,
         client = new FakeSlackClient('hub');
     message.item.message.reactions.pop();
     expect(rule.match(message, new SlackClient(client))).to.be.false;
@@ -75,7 +75,7 @@ describe('Rule', function() {
 
   it('should ignore a message if the channel doesn\'t match', function() {
     var rule = new Rule(helpers.configRule()),
-        message = helpers.reactionAddedMessage(),
+        message = helpers.reactionAddedMessage().rawMessage,
         client = new FakeSlackClient('not-the-hub');
     expect(rule.match(message, new SlackClient(client))).to.be.false;
     expect(client.channelId).to.eql(helpers.CHANNEL_ID);

@@ -4,6 +4,8 @@
 
 var SlackClient = require('../../lib/slack-client');
 var testConfig = require('./test-config.json');
+var Hubot = require('hubot');
+var SlackBot = require('hubot-slack');
 
 exports = module.exports = {
   baseConfig: function() {
@@ -28,7 +30,12 @@ exports = module.exports = {
   CHANNEL_ID: 'C5150OU812',
 
   reactionAddedMessage: function() {
-    return {
+    var user, text, message;
+
+    user = new Hubot.User(exports.USER_ID,
+      { id: exports.USER_ID, name: 'mikebland', room: 'handbook' });
+    text = 'Hello, world!';
+    message = {
       type: SlackClient.REACTION_ADDED,
       user: exports.USER_ID,
       name: 'evergreen_tree',
@@ -36,6 +43,8 @@ exports = module.exports = {
         type: 'message',
         channel: exports.CHANNEL_ID,
         message: {
+          ts: '1360782804.083113',
+          text: text,
           reactions: [
             {
               name: 'evergreen_tree',
@@ -47,17 +56,22 @@ exports = module.exports = {
       },
       'event_ts': '1360782804.083113'
     };
+    return new SlackBot.SlackTextMessage(user, text, text, message);
   },
 
   metadata: function() {
     return {
-      url: 'https://18F.slack.com/archives/handbook/p1360782804083113',
-      title: 'Update from @mikebland in #handbook at 1360782804.083113'
+      domain: '18f',
+      channel: 'handbook',
+      user: 'mikebland',
+      timestamp: '1360782804.083113',
+      title: 'Update from @mikebland in #handbook at 1360782804.083113',
+      url: 'https://18f.slack.com/archives/handbook/p1360782804083113'
     };
   },
 
-  message: function() {
-    return { text: 'Hello, world!' };
+  targetMessage: function() {
+    return exports.reactionAddedMessage().rawMessage.item.message;
   },
 
   githubParams: function() {
@@ -66,7 +80,7 @@ exports = module.exports = {
       repo:  'handbook',
       title: exports.metadata().title,
       body:  'From ' + exports.metadata().url + ':\n\n' +
-        exports.message().text
+        exports.targetMessage().text
     };
   }
 };

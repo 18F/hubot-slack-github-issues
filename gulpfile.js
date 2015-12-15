@@ -4,6 +4,7 @@ var gulp = require('gulp');
 var yargs = require('yargs');
 var mocha = require('gulp-mocha');
 var jshint = require('gulp-jshint');
+require('coffee-script/register');
 
 function buildArgs(args) {
   var argName, skipArgs = { _: true, '$0': true };

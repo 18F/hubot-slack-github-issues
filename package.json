@@ -14,9 +14,12 @@
   "devDependencies": {
     "chai": "^3.4.1",
     "chai-as-promised": "^5.1.0",
+    "coffee-script": "^1.10.0",
     "gulp": "^3.9.0",
     "gulp-jshint": "^2.0.0",
     "gulp-mocha": "^2.2.0",
+    "hubot": "^2.17.0",
+    "hubot-slack": "^3.4.2",
     "jshint": "^2.8.0",
     "mocha": "^2.3.4",
     "yargs": "^3.31.0"

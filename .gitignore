@@ -3,3 +3,4 @@
 .*.swp
 coverage/*
 node_modules/
+.hubot_history
