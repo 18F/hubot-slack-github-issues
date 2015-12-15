@@ -17,7 +17,7 @@ function buildArgs(args) {
 }
 
 gulp.task('test', function() {
-  return gulp.src(['./test/*.js', './test/*.coffee'], {read: false})
+  return gulp.src(['./test/*.js'], {read: false})
     // Reporters:
     // https://github.com/mochajs/mocha/blob/master/lib/reporters/index.js
     .pipe(mocha(buildArgs({ reporter: 'spec' })));
