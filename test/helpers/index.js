@@ -72,17 +72,13 @@ exports = module.exports = {
     };
   },
 
-  targetMessage: function() {
-    return exports.reactionAddedMessage().rawMessage.item.message;
-  },
-
   githubParams: function() {
     return {
       user:  '18F',
       repo:  'handbook',
       title: exports.metadata().title,
       body:  'From ' + exports.metadata().url + ':\n\n' +
-        exports.targetMessage().text
+        exports.reactionAddedMessage().text
     };
   }
 };
