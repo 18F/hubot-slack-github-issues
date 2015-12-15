@@ -65,7 +65,9 @@ exports = module.exports = {
       channel: 'handbook',
       user: 'mikebland',
       timestamp: '1360782804.083113',
-      title: 'Update from @mikebland in #handbook at 1360782804.083113',
+      date: new Date(1360782804.083113 * 1000),
+      title: 'Update from @mikebland in #handbook at ' +
+        'Wed, 13 Feb 2013 19:13:24 GMT',
       url: 'https://18f.slack.com/archives/handbook/p1360782804083113'
     };
   },
