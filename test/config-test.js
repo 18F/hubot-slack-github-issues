@@ -77,7 +77,7 @@ describe('Config', function() {
       'unknown property foo',
       'unknown property bar',
       'rule 0 contains unknown property baz',
-      'rule 1 contains unknown property quux',
+      'rule 3 contains unknown property quux',
     ];
 
     expect(function() { new Config(config); }).to.throw(  // jshint ignore:line
