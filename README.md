@@ -28,7 +28,6 @@ npm install hubot-slack-github-issues --save
 You'll need to create a JSON file conforming to the following schema:
 
 * *githubUser*: GitHub organization or username owning all repositories
-* *githubToken*: GitHub API token
 * *githubTimeout*: GitHub API timeout limit in milliseconds
 * *rules*: defines each condition that will result in a new GitHub issue
   * *reactionName* name of the reaction emoji triggering the rule
@@ -42,7 +41,6 @@ For example:
 ```json
 {
   "githubUser": "18F",
-  "githubToken": "<18F-api-token>",
   "githubTimeout": 5000,
   "rules": [
     {
@@ -53,9 +51,12 @@ For example:
 }
 ```
 
-The path to this configuration file should be made available to the running
-Hubot instance via the `HUBOT_SLACK_GITHUB_ISSUES_CONFIG_PATH` environment
-variable.
+The following environment variables must also be set:
+
+* `HUBOT_SLACK_GITHUB_ISSUES_CONFIG_PATH`: the path to the configuration file
+* `HUBOT_GITHUB_TOKEN`: GitHub API token
+* `HUBOT_SLACK_TOKEN`: Slack API token (needed by
+  [`hubot-slack`](https://www.npmjs.com/package/hubot-slack))
 
 ## Public domain
 

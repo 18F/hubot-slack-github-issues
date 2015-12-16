@@ -1,6 +1,5 @@
 {
   "githubUser": "18F",
-  "githubToken": "<18F-api-token>",
   "githubTimeout": 5000,
   "rules": [
     {
