@@ -12,6 +12,15 @@ var expect = chai.expect;
 chai.should();
 
 describe('Config', function() {
+  before(function() {
+    process.env.HUBOT_SLACK_GITHUB_ISSUES_CONFIG_PATH = path.join(
+      __dirname, 'helpers', 'test-config.json');
+  });
+
+  after(function() {
+    delete process.env.HUBOT_SLACK_GITHUB_ISSUES_CONFIG_PATH;
+  });
+
   it('should validate the base config', function() {
     var baseConfig = helpers.baseConfig(),
         config = new Config(baseConfig);
@@ -35,7 +44,6 @@ describe('Config', function() {
   it('should raise errors for missing required fields', function() {
     var errors = [
       'missing githubUser',
-      'missing githubToken',
       'missing githubTimeout',
       'missing rules'
     ];
@@ -85,10 +93,8 @@ describe('Config', function() {
   });
 
   it('should load from HUBOT_SLACK_GITHUB_ISSUES_CONFIG_PATH', function() {
-    var testConfigPath = path.join(__dirname, 'helpers', 'test-config.json'),
-        baseConfig = helpers.baseConfig();
-    process.env.HUBOT_SLACK_GITHUB_ISSUES_CONFIG_PATH = testConfigPath;
-    var config = new Config();
+    var baseConfig = helpers.baseConfig(),
+        config = new Config();
     expect(JSON.stringify(config)).to.eql(JSON.stringify(baseConfig));
   });
 });

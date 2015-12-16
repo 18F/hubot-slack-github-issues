@@ -16,14 +16,23 @@ chai.use(chaiAsPromised);
 describe('GitHubClient', function() {
   var config = helpers.baseConfig();
 
+  before(function() {
+    process.env.HUBOT_GITHUB_TOKEN = '<18F-github-token>';
+  });
+
+  after(function() {
+    delete process.env.HUBOT_GITHUB_TOKEN;
+  });
+
   it('should create a githubApiClient from the configuration', function() {
     var client = new GitHubClient(config);
+
     expect(client).to.have.property('user', config.githubUser);
     expect(client.api).to.have.deep.property(
       'config.timeout', config.githubTimeout);
     expect(client.api).to.have.deep.property('auth.type', 'oauth');
     expect(client.api).to.have.deep.property(
-      'auth.token', config.githubToken);
+      'auth.token', process.env.HUBOT_GITHUB_TOKEN);
   });
 
   it('should successfully file an issue', function() {
