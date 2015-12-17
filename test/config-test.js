@@ -97,4 +97,13 @@ describe('Config', function() {
         config = new Config();
     expect(JSON.stringify(config)).to.eql(JSON.stringify(baseConfig));
   });
+
+  it('should load from config/slack-github-issues.json by default', function() {
+    var defaultConfig = require('../config/slack-github-issues.json'),
+        config;
+
+    delete process.env.HUBOT_SLACK_GITHUB_ISSUES_CONFIG_PATH;
+    config = new Config();
+    expect(JSON.stringify(config)).to.eql(JSON.stringify(defaultConfig));
+  });
 });
