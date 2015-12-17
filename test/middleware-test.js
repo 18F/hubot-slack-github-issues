@@ -127,7 +127,7 @@ describe('Middleware', function() {
         next.calledOnce.should.be.true;
         next.calledWith(hubotDone).should.be.true;
         hubotDone.called.should.be.false;
-        logHelper.messages.should.be.eql([
+        logHelper.messages.should.eql([
           [scriptName + ': making GitHub request for ' +
            'https://18f.slack.com/archives/handbook/p1360782804083113'],
           [scriptName + ': GitHub success: ' +
@@ -156,7 +156,7 @@ describe('Middleware', function() {
         next.calledOnce.should.be.true;
         next.calledWith(hubotDone).should.be.true;
         hubotDone.called.should.be.false;
-        logHelper.messages.should.be.eql([
+        logHelper.messages.should.eql([
           [scriptName + ': making GitHub request for ' +
             'https://18f.slack.com/archives/handbook/p1360782804083113'],
           [scriptName + ': GitHub error: test failure']
