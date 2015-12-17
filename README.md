@@ -53,10 +53,13 @@ For example:
 
 The following environment variables must also be set:
 
-* `HUBOT_SLACK_GITHUB_ISSUES_CONFIG_PATH`: the path to the configuration file
 * `HUBOT_GITHUB_TOKEN`: GitHub API token
 * `HUBOT_SLACK_TOKEN`: Slack API token (needed by
   [`hubot-slack`](https://www.npmjs.com/package/hubot-slack))
+
+The following environment variables are optional:
+* `HUBOT_SLACK_GITHUB_ISSUES_CONFIG_PATH`: the path to the configuration file;
+  defaults to `config/slack-github-issues.json`
 
 ## Public domain
 
