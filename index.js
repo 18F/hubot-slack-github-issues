@@ -6,5 +6,5 @@ var log = require('./lib/log');
 
 module.exports = function(robot) {
   log('loading');
-  robot.loadFile(path.resolve(__dirname, 'scripts'), 'slack-github-issues');
+  robot.loadFile(path.resolve(__dirname, 'scripts'), 'slack-github-issues.js');
 };
