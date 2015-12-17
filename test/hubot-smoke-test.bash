@@ -5,9 +5,9 @@
 pushd $(dirname $0) >/dev/null
 PACKAGE_ROOT=$(dirname $(pwd -P))
 popd >/dev/null
-
-export HUBOT_SLACK_GITHUB_ISSUES_CONFIG_PATH="${PACKAGE_ROOT}/test/helpers/test-config.json"
+cd ${PACKAGE_ROOT}
 
 COFFEE=${PACKAGE_ROOT}/node_modules/coffee-script/bin/coffee
 echo -n "Executing hubot-smoke-test: "
+export HUBOT_GITHUB_TOKEN="<bogus-18f-github-token>"
 exec ${COFFEE} ${PACKAGE_ROOT}/node_modules/hubot/bin/hubot -t
