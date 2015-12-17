@@ -14,10 +14,11 @@
 
 'use strict';
 
-var Config = require('../lib/config.js');
-var SlackClient = require('../lib/slack-client.js');
-var GitHubClient = require('../lib/github-client.js');
-var Middleware = require('../lib/middleware.js');
+var Config = require('../lib/config');
+var SlackClient = require('../lib/slack-client');
+var GitHubClient = require('../lib/github-client');
+var Middleware = require('../lib/middleware');
+var log = require('../lib/log');
 
 module.exports = function(robot) {
   var config = new Config(),
@@ -31,4 +32,5 @@ module.exports = function(robot) {
 
   middleware.impl = impl;
   robot.receiveMiddleware(middleware);
+  log('registered receiveMiddleware');
 };

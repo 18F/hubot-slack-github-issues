@@ -7,8 +7,10 @@
 var Middleware = require('../lib/middleware');
 var GitHubClient = require('../lib/github-client');
 var SlackClient = require('../lib/slack-client');
+var scriptName = require('../package.json').name;
 var helpers = require('./helpers');
 var FakeSlackClient = require('./helpers/fake-slack-client');
+var LogHelper = require('./helpers/log-helper');
 var sinon = require('sinon');
 var chai = require('chai');
 var chaiAsPromised = require('chai-as-promised');
@@ -69,8 +71,8 @@ describe('Middleware', function() {
   });
 
   describe('execute', function() {
-    var message, context, fileNewIssue, reply, next, hubotDone;
-    var metadata, expectedFileNewIssueArgs, result;
+    var message, context, fileNewIssue, reply, next, hubotDone,
+        metadata, expectedFileNewIssueArgs, result, logHelper;
 
     beforeEach(function() {
       message = helpers.reactionAddedMessage();
@@ -89,28 +91,35 @@ describe('Middleware', function() {
       metadata = helpers.metadata();
       expectedFileNewIssueArgs = [metadata, 'handbook',
         helpers.reactionAddedMessage().rawMessage.item.message.text];
+      logHelper = new LogHelper();
     });
 
     it('should ignore messages that do not match', function() {
       message.rawMessage.name = 'sad-face';
+      logHelper.captureLog();
       result = middleware.execute(context, next, hubotDone);
+      logHelper.restoreLog();
       expect(result).to.be.undefined;
       next.calledOnce.should.be.true;
       next.calledWith(hubotDone).should.be.true;
       hubotDone.called.should.be.false;
       reply.called.should.be.false;
       fileNewIssue.called.should.be.false;
+      logHelper.messages.should.be.empty;
     });
 
     it('should successfully parse a message and file an issue', function(done) {
       fileNewIssue.returns(Promise.resolve(metadata.url));
+      logHelper.captureLog();
       result = middleware.execute(context, next, hubotDone);
 
       if (!result) {
+        logHelper.restoreLog();
         return done(new Error('middleware.execute did not return a Promise'));
       }
 
       result.should.be.fulfilled.then(function() {
+        logHelper.restoreLog();
         fileNewIssue.calledOnce.should.be.true;
         fileNewIssue.firstCall.args.should.eql(expectedFileNewIssueArgs);
         reply.calledOnce.should.be.true;
@@ -118,18 +127,27 @@ describe('Middleware', function() {
         next.calledOnce.should.be.true;
         next.calledWith(hubotDone).should.be.true;
         hubotDone.called.should.be.false;
+        logHelper.messages.should.be.eql([
+          [scriptName + ': making GitHub request for ' +
+           'https://18f.slack.com/archives/handbook/p1360782804083113'],
+          [scriptName + ': GitHub success: ' +
+           'https://18f.slack.com/archives/handbook/p1360782804083113']
+        ]);
       }).should.notify(done);
     });
 
     it('should parse a message but fail to file an issue', function(done) {
       fileNewIssue.returns(Promise.reject(new Error('test failure')));
+      logHelper.captureLog();
       result = middleware.execute(context, next, hubotDone);
 
       if (!result) {
+        logHelper.restoreLog();
         return done(new Error('middleware.execute did not return a Promise'));
       }
 
       result.should.be.fulfilled.then(function() {
+        logHelper.restoreLog();
         fileNewIssue.calledOnce.should.be.true;
         fileNewIssue.firstCall.args.should.eql(expectedFileNewIssueArgs);
         reply.calledOnce.should.be.true;
@@ -138,6 +156,11 @@ describe('Middleware', function() {
         next.calledOnce.should.be.true;
         next.calledWith(hubotDone).should.be.true;
         hubotDone.called.should.be.false;
+        logHelper.messages.should.be.eql([
+          [scriptName + ': making GitHub request for ' +
+            'https://18f.slack.com/archives/handbook/p1360782804083113'],
+          [scriptName + ': GitHub error: test failure']
+        ]);
       }).should.notify(done);
     });
   });
