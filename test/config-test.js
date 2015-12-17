@@ -61,6 +61,8 @@ describe('Config', function() {
     var errors = [
           'missing githubUser',
           'missing githubTimeout',
+          'missing inProgressReaction',
+          'missing successReaction',
           'missing rules'
         ],
         errorMessage = 'Invalid configuration:\n  ' + errors.join('\n  ');
