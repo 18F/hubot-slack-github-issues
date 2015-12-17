@@ -1,10 +1,13 @@
 /* jshint node: true */
 /* jshint mocha: true */
+/* jshint expr: true */
 
 'use strict';
 
 var Config = require('../lib/config');
 var helpers = require('./helpers');
+var LogHelper = require('./helpers/log-helper');
+var scriptName = require('../package.json').name;
 var chai = require('chai');
 var path = require('path');
 
@@ -12,14 +15,26 @@ var expect = chai.expect;
 chai.should();
 
 describe('Config', function() {
+  var logHelper, newConfig;
+
   before(function() {
     process.env.HUBOT_SLACK_GITHUB_ISSUES_CONFIG_PATH = path.join(
       __dirname, 'helpers', 'test-config.json');
+    logHelper = new LogHelper();
   });
 
   after(function() {
     delete process.env.HUBOT_SLACK_GITHUB_ISSUES_CONFIG_PATH;
   });
+
+  newConfig = function(config) {
+    try {
+      logHelper.captureLog();
+      return new Config(config);
+    } finally {
+      logHelper.restoreLog();
+    }
+  };
 
   it('should validate the base config', function() {
     var baseConfig = helpers.baseConfig(),
@@ -36,24 +51,28 @@ describe('Config', function() {
       'githubRepository': '18F/hubot-slack-github-issues',
       'channelName': 'hub'
     });
-    config = new Config(configWithChannelRule);
+    config = newConfig(configWithChannelRule);
     expect(JSON.stringify(config)).to.eql(
       JSON.stringify(configWithChannelRule));
+    expect(logHelper.messages).to.be.empty;
   });
 
   it('should raise errors for missing required fields', function() {
     var errors = [
-      'missing githubUser',
-      'missing githubTimeout',
-      'missing rules'
-    ];
-    expect(function() { new Config({}); }).to.throw(  // jshint ignore:line
-      'Invalid configuration:\n  ' + errors.join('\n  '));
+          'missing githubUser',
+          'missing githubTimeout',
+          'missing rules'
+        ],
+        errorMessage = 'Invalid configuration:\n  ' + errors.join('\n  ');
+
+    expect(function() { newConfig({}); }).to.throw(errorMessage);
+    expect(logHelper.messages).to.eql([[scriptName + ': ' + errorMessage]]);
   });
 
   it('should raise errors for missing required rules fields', function() {
     var config = helpers.baseConfig(),
-        errors;
+        errors,
+        errorMessage;
 
     delete config.rules[0].reactionName;
     delete config.rules[0].githubRepository;
@@ -62,14 +81,16 @@ describe('Config', function() {
       'rule 0 missing reactionName',
       'rule 0 missing githubRepository'
     ];
+    errorMessage = 'Invalid configuration:\n  ' + errors.join('\n  ');
 
-    expect(function() { new Config(config); }).to.throw(  // jshint ignore:line
-      'Invalid configuration:\n  ' + errors.join('\n  '));
+    expect(function() { newConfig(config); }).to.throw(errorMessage);
+    expect(logHelper.messages).to.eql([[scriptName + ': ' + errorMessage]]);
   });
 
   it('should raise errors for unknown properties', function() {
     var config = helpers.baseConfig(),
-        errors;
+        errors,
+        errorMessage;
 
     config.foo = {};
     config.bar = {};
@@ -87,15 +108,20 @@ describe('Config', function() {
       'rule 0 contains unknown property baz',
       'rule 3 contains unknown property quux',
     ];
+    errorMessage = 'Invalid configuration:\n  ' + errors.join('\n  ');
 
-    expect(function() { new Config(config); }).to.throw(  // jshint ignore:line
-      'Invalid configuration:\n  ' + errors.join('\n  '));
+    expect(function() { newConfig(config); }).to.throw(errorMessage);
+    expect(logHelper.messages).to.eql([[scriptName + ': ' + errorMessage]]);
   });
 
   it('should load from HUBOT_SLACK_GITHUB_ISSUES_CONFIG_PATH', function() {
     var baseConfig = helpers.baseConfig(),
-        config = new Config();
+        config = newConfig();
     expect(JSON.stringify(config)).to.eql(JSON.stringify(baseConfig));
+    expect(logHelper.messages).to.eql([
+      [scriptName + ': loading config from ' +
+       process.env.HUBOT_SLACK_GITHUB_ISSUES_CONFIG_PATH]
+    ]);
   });
 
   it('should load from config/slack-github-issues.json by default', function() {
@@ -103,7 +129,10 @@ describe('Config', function() {
         config;
 
     delete process.env.HUBOT_SLACK_GITHUB_ISSUES_CONFIG_PATH;
-    config = new Config();
+    config = newConfig();
     expect(JSON.stringify(config)).to.eql(JSON.stringify(defaultConfig));
+    expect(logHelper.messages).to.eql([
+      [scriptName + ': loading config from config/slack-github-issues.json']
+    ]);
   });
 });
