@@ -1,6 +1,8 @@
 {
   "githubUser": "18F",
   "githubTimeout": 5000,
+  "inProgressReaction": "checkered_flag",
+  "successReaction": "check",
   "rules": [
     {
       "reactionName": "evergreen_tree",
