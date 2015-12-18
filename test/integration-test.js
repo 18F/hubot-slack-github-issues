@@ -108,10 +108,11 @@ describe('Integration test', function() {
     });
 
     it('should fail to create a GitHub issue', function() {
+      var errorMessage = helpers.failureMessage('test failure');
+
       this.room.messages.should.eql([
         ['mikebland', 'evergreen_tree'],
-        ['hubot', '@mikebland failed to create a GitHub issue ' +
-         'in 18F/handbook: test failure']
+        ['hubot', '@mikebland ' + errorMessage ]
       ]);
 
       logMessages.should.eql(configLogMessages.concat([

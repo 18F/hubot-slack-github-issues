@@ -87,7 +87,6 @@ exports = module.exports = {
     };
   },
 
-
   logMessage: function(message) {
     return scriptName + ': ' + exports.MSG_ID + ': ' + message;
   },
