@@ -28,6 +28,7 @@ exports = module.exports = {
 
   USER_ID: 'U5150OU812',
   CHANNEL_ID: 'C5150OU812',
+  TIMESTAMP: '1360782804.083113',
 
   reactionAddedMessage: function() {
     var user, text, message;
@@ -43,7 +44,7 @@ exports = module.exports = {
         type: 'message',
         channel: exports.CHANNEL_ID,
         message: {
-          ts: '1360782804.083113',
+          ts: exports.TIMESTAMP,
           text: text,
           reactions: [
             {
@@ -54,7 +55,7 @@ exports = module.exports = {
           ]
         }
       },
-      'event_ts': '1360782804.083113'
+      'event_ts': exports.TIMESTAMP
     };
     return new SlackBot.SlackTextMessage(user, text, text, message);
   },
@@ -64,7 +65,7 @@ exports = module.exports = {
       domain: '18f',
       channel: 'handbook',
       user: 'mikebland',
-      timestamp: '1360782804.083113',
+      timestamp: exports.TIMESTAMP,
       date: new Date(1360782804.083113 * 1000),
       title: 'Update from @mikebland in #handbook at ' +
         'Wed, 13 Feb 2013 19:13:24 GMT',

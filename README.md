@@ -56,7 +56,7 @@ For example:
 The following environment variables must also be set:
 
 * `HUBOT_GITHUB_TOKEN`: GitHub API token
-* `HUBOT_SLACK_TOKEN`: Slack API token (needed by
+* `HUBOT_SLACK_TOKEN`: Slack API token (also needed by
   [`hubot-slack`](https://www.npmjs.com/package/hubot-slack))
 
 The following environment variables are optional:
