@@ -13,7 +13,7 @@ chai.should();
 chai.use(chaiAsPromised);
 
 describe('SlackClient', function() {
-  var slackToken, slackApiServer, slackClient, createServer;
+  var slackToken, slackApiServer, slackClient, createServer, payload, params;
 
   before(function() {
     slackClient = new SlackClient();
@@ -21,6 +21,11 @@ describe('SlackClient', function() {
     slackClient.host = 'localhost';
     slackToken = '<18F-slack-api-token>';
     process.env.HUBOT_SLACK_TOKEN = slackToken;
+    params = {
+      channel: helpers.CHANNEL_ID,
+      timestamp: helpers.TIMESTAMP,
+      token: slackToken
+    };
   });
 
   after(function() {
@@ -29,6 +34,7 @@ describe('SlackClient', function() {
 
   beforeEach(function() {
     slackApiServer = undefined;
+    payload = '{ "message": "Hello, world!" }';
   });
 
   afterEach(function() {
@@ -44,17 +50,6 @@ describe('SlackClient', function() {
   };
 
   describe('getReactions', function() {
-    var payload, params;
-
-    beforeEach(function() {
-      payload = '{ "message": "Hello, world!" }';
-      params = {
-        channel: helpers.CHANNEL_ID,
-        timestamp: helpers.TIMESTAMP,
-        token: slackToken
-      };
-    });
-
     it('should make a successful request', function() {
       createServer('/api/reactions.get', params, 200, payload);
       return slackClient.getReactions(helpers.CHANNEL_ID, helpers.TIMESTAMP)
