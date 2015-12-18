@@ -1,7 +1,7 @@
 {
   "githubUser": "18F",
   "githubTimeout": 5000,
-  "inProgressReaction": "checkered_flag",
+  "slackTimeout": 5000,
   "successReaction": "heavy_check_mark",
   "rules": [
     {

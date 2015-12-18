@@ -61,7 +61,7 @@ describe('Config', function() {
     var errors = [
           'missing githubUser',
           'missing githubTimeout',
-          'missing inProgressReaction',
+          'missing slackTimeout',
           'missing successReaction',
           'missing rules'
         ],

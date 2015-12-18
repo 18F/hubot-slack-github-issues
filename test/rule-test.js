@@ -7,6 +7,7 @@
 var Rule = require('../lib/rule');
 var SlackClient = require('../lib/slack-client');
 var helpers = require('./helpers');
+var config = require('./helpers/test-config.json');
 var FakeSlackClient = require('./helpers/fake-slack-client');
 var chai = require('chai');
 
@@ -24,7 +25,7 @@ describe('Rule', function() {
     var rule = new Rule(helpers.configRule()),
         message = helpers.reactionAddedMessage().rawMessage,
         client = new FakeSlackClient('hub');
-    expect(rule.match(message, new SlackClient(client))).to.be.true;
+    expect(rule.match(message, new SlackClient(client, config))).to.be.true;
     expect(client.channelId).to.eql(helpers.CHANNEL_ID);
   });
 
@@ -33,7 +34,7 @@ describe('Rule', function() {
         message = helpers.reactionAddedMessage().rawMessage,
         client = new FakeSlackClient('not-the-hub');
     delete rule.channelName;
-    expect(rule.match(message, new SlackClient(client))).to.be.true;
+    expect(rule.match(message, new SlackClient(client, config))).to.be.true;
     expect(client.channelId).to.be.undefined;
   });
 
@@ -42,7 +43,7 @@ describe('Rule', function() {
         message = helpers.reactionAddedMessage().rawMessage,
         client = new FakeSlackClient('hub');
     message.name = 'sad-face';
-    expect(rule.match(message, new SlackClient(client))).to.be.false;
+    expect(rule.match(message, new SlackClient(client, config))).to.be.false;
     expect(client.channelId).to.be.undefined;
   });
 
@@ -51,7 +52,7 @@ describe('Rule', function() {
         message = helpers.reactionAddedMessage().rawMessage,
         client = new FakeSlackClient('hub');
     message.item.message.reactions[0].count = 2;
-    expect(rule.match(message, new SlackClient(client))).to.be.false;
+    expect(rule.match(message, new SlackClient(client, config))).to.be.false;
     expect(client.channelId).to.be.undefined;
   });
 
@@ -60,7 +61,7 @@ describe('Rule', function() {
         message = helpers.reactionAddedMessage().rawMessage,
         client = new FakeSlackClient('hub');
     message.item.message.reactions.pop();
-    expect(rule.match(message, new SlackClient(client))).to.be.false;
+    expect(rule.match(message, new SlackClient(client, config))).to.be.false;
     expect(client.channelId).to.be.undefined;
   });
 
@@ -68,7 +69,7 @@ describe('Rule', function() {
     var rule = new Rule(helpers.configRule()),
         message = helpers.reactionAddedMessage().rawMessage,
         client = new FakeSlackClient('not-the-hub');
-    expect(rule.match(message, new SlackClient(client))).to.be.false;
+    expect(rule.match(message, new SlackClient(client, config))).to.be.false;
     expect(client.channelId).to.eql(helpers.CHANNEL_ID);
   });
 });

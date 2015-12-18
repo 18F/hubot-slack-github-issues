@@ -24,7 +24,7 @@ module.exports = function(robot) {
   var config = new Config(),
       impl = new Middleware(
         config.rules,
-        new SlackClient(robot.adapter.client),
+        new SlackClient(robot.adapter.client, config),
         new GitHubClient(config)),
       middleware = function(context, next, done) {
         impl.execute(context, next, done);
