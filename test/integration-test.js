@@ -82,8 +82,7 @@ describe('Integration test', function() {
 
   context('an evergreen_tree reaction to a message', function() {
     beforeEach(function() {
-      var githubApi = new FakeGitHubApi(
-        helpers.metadata().url, '', githubParams);
+      var githubApi = new FakeGitHubApi(helpers.ISSUE_URL, '', githubParams);
 
       middlewareImpl.githubClient = new GitHubClient(testConfig, githubApi);
       return this.room.user.react('mikebland', 'evergreen_tree');
@@ -92,11 +91,11 @@ describe('Integration test', function() {
     it('should create a GitHub issue', function() {
       this.room.messages.should.eql([
         ['mikebland', 'evergreen_tree'],
-        ['hubot', '@mikebland created: ' + helpers.metadata().url]
+        ['hubot', '@mikebland created: ' + helpers.ISSUE_URL]
       ]);
       logMessages.should.eql(configLogMessages.concat([
         [githubLogMessage],
-        [scriptName + ': GitHub success: ' + helpers.metadata().url]
+        [scriptName + ': GitHub success: ' + helpers.ISSUE_URL]
       ]));
     });
   });
