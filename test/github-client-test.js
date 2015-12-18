@@ -36,12 +36,12 @@ describe('GitHubClient', function() {
   });
 
   it('should successfully file an issue', function() {
-    var issueUrl = 'https://github.com/18F/handbook/issues/1',
-        api = new FakeGitHubApi(issueUrl, null, helpers.githubParams()),
+    var api = new FakeGitHubApi(
+          helpers.ISSUE_URL, null, helpers.githubParams()),
         client = new GitHubClient(config, api);
     return client.fileNewIssue(
       helpers.metadata(), 'handbook', helpers.reactionAddedMessage().text)
-      .should.eventually.equal(issueUrl);
+      .should.eventually.equal(helpers.ISSUE_URL);
   });
 
   it('should receive an error when filing an issue', function() {

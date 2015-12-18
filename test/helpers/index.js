@@ -8,6 +8,14 @@ var Hubot = require('hubot');
 var SlackBot = require('hubot-slack');
 
 exports = module.exports = {
+  REACTION: 'evergreen_tree',
+  USER_ID: 'U5150OU812',
+  CHANNEL_ID: 'C5150OU812',
+  TIMESTAMP: '1360782804.083113',
+  MSG_ID: 'C5150OU812:1360782804.083113',
+  PERMALINK: 'https://18f.slack.com/archives/handbook/p1360782804083113',
+  ISSUE_URL: 'https://github.com/18F/handbook/issues/1',
+
   baseConfig: function() {
     // Notes on the `rules:` property:
     // - The first one matches the 'evergreen_tree' reaction from
@@ -20,15 +28,11 @@ exports = module.exports = {
 
   configRule: function() {
     return {
-      reactionName: 'evergreen_tree',
+      reactionName: exports.REACTION,
       githubRepository: 'hubot-slack-github-issues',
       channelName: 'hub'
     };
   },
-
-  USER_ID: 'U5150OU812',
-  CHANNEL_ID: 'C5150OU812',
-  TIMESTAMP: '1360782804.083113',
 
   reactionAddedMessage: function() {
     var user, text, message;
@@ -39,7 +43,7 @@ exports = module.exports = {
     message = {
       type: SlackClient.REACTION_ADDED,
       user: exports.USER_ID,
-      name: 'evergreen_tree',
+      name: exports.REACTION,
       item: {
         type: 'message',
         channel: exports.CHANNEL_ID,
@@ -48,7 +52,7 @@ exports = module.exports = {
           text: text,
           reactions: [
             {
-              name: 'evergreen_tree',
+              name: exports.REACTION,
               count: 1,
               users: [ exports.USER_ID ]
             }
@@ -69,7 +73,7 @@ exports = module.exports = {
       date: new Date(1360782804.083113 * 1000),
       title: 'Update from @mikebland in #handbook at ' +
         'Wed, 13 Feb 2013 19:13:24 GMT',
-      url: 'https://18f.slack.com/archives/handbook/p1360782804083113'
+      url: exports.PERMALINK
     };
   },
 

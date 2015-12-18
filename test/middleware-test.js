@@ -110,7 +110,7 @@ describe('Middleware', function() {
     });
 
     it('should successfully parse a message and file an issue', function(done) {
-      fileNewIssue.returns(Promise.resolve(metadata.url));
+      fileNewIssue.returns(Promise.resolve(helpers.ISSUE_URL));
       logHelper.captureLog();
       result = middleware.execute(context, next, hubotDone);
 
@@ -124,15 +124,13 @@ describe('Middleware', function() {
         fileNewIssue.calledOnce.should.be.true;
         fileNewIssue.firstCall.args.should.eql(expectedFileNewIssueArgs);
         reply.calledOnce.should.be.true;
-        reply.firstCall.args.should.eql(['created: ' + metadata.url]);
+        reply.firstCall.args.should.eql(['created: ' + helpers.ISSUE_URL]);
         next.calledOnce.should.be.true;
         next.calledWith(hubotDone).should.be.true;
         hubotDone.called.should.be.false;
         logHelper.messages.should.eql([
-          [scriptName + ': making GitHub request for ' +
-           'https://18f.slack.com/archives/handbook/p1360782804083113'],
-          [scriptName + ': GitHub success: ' +
-           'https://18f.slack.com/archives/handbook/p1360782804083113']
+          [scriptName + ': making GitHub request for ' + helpers.PERMALINK],
+          [scriptName + ': GitHub success: ' + helpers.ISSUE_URL]
         ]);
       }).should.notify(done);
     });
@@ -158,8 +156,7 @@ describe('Middleware', function() {
         next.calledWith(hubotDone).should.be.true;
         hubotDone.called.should.be.false;
         logHelper.messages.should.eql([
-          [scriptName + ': making GitHub request for ' +
-            'https://18f.slack.com/archives/handbook/p1360782804083113'],
+          [scriptName + ': making GitHub request for ' + helpers.PERMALINK],
           [scriptName + ': GitHub error: test failure']
         ]);
       }).should.notify(done);
