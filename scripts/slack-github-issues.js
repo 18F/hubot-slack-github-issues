@@ -23,7 +23,7 @@ var log = require('../lib/log');
 module.exports = function(robot) {
   var config = new Config(),
       impl = new Middleware(
-        config.rules,
+        config,
         new SlackClient(robot.adapter.client, config),
         new GitHubClient(config)),
       middleware = function(context, next, done) {

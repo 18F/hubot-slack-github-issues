@@ -9,7 +9,6 @@ var GitHubClient = require('../lib/github-client');
 var SlackClient = require('../lib/slack-client');
 var scriptName = require('../package.json').name;
 var helpers = require('./helpers');
-var config = require('./helpers/test-config.json');
 var FakeSlackClient = require('./helpers/fake-slack-client');
 var LogHelper = require('./helpers/log-helper');
 var sinon = require('sinon');
@@ -23,14 +22,14 @@ chai.use(chaiAsPromised);
 chai.use(chaiThings);
 
 describe('Middleware', function() {
-  var rules, slackClient, githubClient, middleware;
+  var config, slackClient, githubClient, middleware;
 
   beforeEach(function() {
-    rules = helpers.baseConfig().rules;
+    config = helpers.baseConfig();
     slackClient = new FakeSlackClient('handbook');
     githubClient = new GitHubClient(helpers.baseConfig(), {});
     middleware = new Middleware(
-      rules, new SlackClient(slackClient, config), githubClient);
+      config, new SlackClient(slackClient, config), githubClient);
   });
 
   describe('parseMetadata', function() {
@@ -45,7 +44,7 @@ describe('Middleware', function() {
   describe('findMatchingRule', function() {
     it('should find the rule matching the message', function() {
       var message = helpers.reactionAddedMessage().rawMessage,
-          expected = rules[rules.length - 1],
+          expected = config.rules[config.rules.length - 1],
           result = middleware.findMatchingRule(message);
 
       result.reactionName.should.equal(expected.reactionName);
@@ -205,6 +204,27 @@ describe('Middleware', function() {
         logHelper.messages.should.include.something.that.deep.equals(
           inProgressLogMessage);
       }).should.notify(done);
+    });
+
+    it('should not file another issue for the same message when ' +
+      'one is already filed ', function() {
+      var result, alreadyFiledLogMessage;
+
+      message.rawMessage.item.message.reactions.push({
+        name: config.successReaction,
+        count: 1,
+        users: [ helpers.USER_ID ]
+      });
+
+      logHelper.captureLog();
+      result = middleware.execute(context, next, hubotDone);
+      logHelper.restoreLog();
+      expect(result).to.be.undefined;
+
+      alreadyFiledLogMessage = [
+        scriptName + ': ' + helpers.MSG_ID + ': already processed'];
+      logHelper.messages.should.include.something.that.deep.equals(
+        alreadyFiledLogMessage);
     });
   });
 });
