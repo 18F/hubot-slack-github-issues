@@ -16,7 +16,7 @@ describe('SlackClient', function() {
   var slackToken, slackApiServer, slackClient, createServer, payload, params;
 
   before(function() {
-    slackClient = new SlackClient();
+    slackClient = new SlackClient(undefined, helpers.baseConfig());
     slackClient.protocol = 'http:';
     slackClient.host = 'localhost';
     slackToken = '<18F-slack-api-token>';

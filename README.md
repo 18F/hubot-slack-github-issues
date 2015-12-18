@@ -29,7 +29,7 @@ You'll need to create a JSON file conforming to the following schema:
 
 * *githubUser*: GitHub organization or username owning all repositories
 * *githubTimeout*: GitHub API timeout limit in milliseconds
-* *inProgressReaction*: emoji used to indicate an issue is being filed
+* *slackTimeout*: Slack API timeout limit in milliseconds
 * *successReaction* emoji used to indicate an issue was successfully filed
 * *rules*: defines each condition that will result in a new GitHub issue
   * *reactionName* name of the reaction emoji triggering the rule

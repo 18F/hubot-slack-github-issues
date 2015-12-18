@@ -9,6 +9,7 @@ var GitHubClient = require('../lib/github-client');
 var SlackClient = require('../lib/slack-client');
 var scriptName = require('../package.json').name;
 var helpers = require('./helpers');
+var config = require('./helpers/test-config.json');
 var FakeSlackClient = require('./helpers/fake-slack-client');
 var LogHelper = require('./helpers/log-helper');
 var sinon = require('sinon');
@@ -27,7 +28,7 @@ describe('Middleware', function() {
     slackClient = new FakeSlackClient('handbook');
     githubClient = new GitHubClient(helpers.baseConfig(), {});
     middleware = new Middleware(
-      rules, new SlackClient(slackClient), githubClient);
+      rules, new SlackClient(slackClient, config), githubClient);
   });
 
   describe('parseMetadata', function() {

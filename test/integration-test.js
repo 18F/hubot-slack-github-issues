@@ -22,7 +22,8 @@ chai.should();
 
 describe('Integration test', function() {
   var middlewareImpl = null,
-      slackClient = new SlackClient(new FakeSlackClient('handbook')),
+      slackClient = new SlackClient(
+       new FakeSlackClient('handbook'), testConfig),
       githubParams = helpers.githubParams(),
       logHelper, logMessages,
       configLogMessages, githubLogMessage;
