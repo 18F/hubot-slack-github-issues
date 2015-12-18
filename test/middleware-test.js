@@ -15,10 +15,12 @@ var LogHelper = require('./helpers/log-helper');
 var sinon = require('sinon');
 var chai = require('chai');
 var chaiAsPromised = require('chai-as-promised');
+var chaiThings = require('chai-things');
 
 var expect = chai.expect;
 chai.should();
 chai.use(chaiAsPromised);
+chai.use(chaiThings);
 
 describe('Middleware', function() {
   var rules, slackClient, githubClient, middleware;
@@ -174,6 +176,34 @@ describe('Middleware', function() {
           [scriptName + ': making GitHub request for ' + helpers.PERMALINK],
           [scriptName + ': GitHub error: test failure']
         ]);
+      }).should.notify(done);
+    });
+
+    it('should not file another issue for the same message when ' +
+      'one is in progress', function(done) {
+      fileNewIssue.returns(Promise.resolve(metadata.url));
+      result = doExecute(done);
+
+      if (!result) {
+        return;
+      }
+
+      if (middleware.execute(context, next, hubotDone) !== undefined) {
+        logHelper.restoreLog();
+        return done(new Error('middleware.execute did not prevent a second ' +
+          'issue being filed when one was in progress'));
+      }
+
+      return result.should.be.fulfilled.then(function() {
+        var inProgressLogMessage;
+
+        logHelper.restoreLog();
+        fileNewIssue.calledOnce.should.be.true;
+
+        inProgressLogMessage = [
+          scriptName + ': ' + helpers.MSG_ID + ': already in progress'];
+        logHelper.messages.should.include.something.that.deep.equals(
+          inProgressLogMessage);
       }).should.notify(done);
     });
   });
