@@ -5,6 +5,7 @@
 
 var SlackClient = require('../lib/slack-client');
 var helpers = require('./helpers');
+var testConfig = require('./helpers/test-config.json');
 var launchServer = require('./helpers/fake-slack-api-server').launch;
 var chai = require('chai');
 var chaiAsPromised = require('chai-as-promised');
@@ -16,16 +17,11 @@ describe('SlackClient', function() {
   var slackToken, slackApiServer, slackClient, createServer, payload, params;
 
   before(function() {
-    slackClient = new SlackClient(undefined, helpers.baseConfig());
+    slackClient = new SlackClient(undefined, testConfig);
     slackClient.protocol = 'http:';
     slackClient.host = 'localhost';
     slackToken = '<18F-slack-api-token>';
     process.env.HUBOT_SLACK_TOKEN = slackToken;
-    params = {
-      channel: helpers.CHANNEL_ID,
-      timestamp: helpers.TIMESTAMP,
-      token: slackToken
-    };
   });
 
   after(function() {
@@ -50,6 +46,14 @@ describe('SlackClient', function() {
   };
 
   describe('getReactions', function() {
+    beforeEach(function() {
+      params = {
+        channel: helpers.CHANNEL_ID,
+        timestamp: helpers.TIMESTAMP,
+        token: slackToken
+      };
+    });
+
     it('should make a successful request', function() {
       createServer('/api/reactions.get', params, 200, payload);
       return slackClient.getReactions(helpers.CHANNEL_ID, helpers.TIMESTAMP)
@@ -67,6 +71,23 @@ describe('SlackClient', function() {
       return slackClient.getReactions(helpers.CHANNEL_ID, helpers.TIMESTAMP)
         .should.be.rejectedWith('received 404 response from Slack API: ' +
           'Not found');
+    });
+  });
+
+  describe('addSuccessReaction', function() {
+    beforeEach(function() {
+      params = {
+        channel: helpers.CHANNEL_ID,
+        timestamp: helpers.TIMESTAMP,
+        name: testConfig.successReaction,
+        token: slackToken
+      };
+    });
+
+    it('should make a successful request', function() {
+      createServer('/api/reactions.add', params, 200, payload);
+      return slackClient.addSuccessReaction(
+        helpers.CHANNEL_ID, helpers.TIMESTAMP).should.become(payload);
     });
   });
 });
