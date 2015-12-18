@@ -60,5 +60,18 @@ describe('SlackClient', function() {
       return slackClient.getReactions(helpers.CHANNEL_ID, helpers.TIMESTAMP)
         .should.become(payload);
     });
+
+    it('should fail to make a request if the server is down', function() {
+      return slackClient.getReactions(helpers.CHANNEL_ID, helpers.TIMESTAMP)
+        .should.be.rejectedWith('failed to make Slack API request:');
+    });
+
+    it('should make an unsuccessful request', function() {
+      // 300-family requests will currently fail as well.
+      createServer('/api/reactions.get', params, 404, 'Not found');
+      return slackClient.getReactions(helpers.CHANNEL_ID, helpers.TIMESTAMP)
+        .should.be.rejectedWith('received 404 response from Slack API: ' +
+          'Not found');
+    });
   });
 });
