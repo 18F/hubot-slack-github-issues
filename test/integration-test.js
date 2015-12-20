@@ -37,8 +37,8 @@ describe('Integration test', function() {
       [scriptName + ': loading config from ' + configPath],
       [scriptName + ': registered receiveMiddleware']
     ];
-    githubLogMessage = scriptName + ': making GitHub request for ' +
-      helpers.metadata().url;
+    githubLogMessage = scriptName + ': ' + helpers.MSG_ID +
+      ': making GitHub request for ' + helpers.PERMALINK;
   });
 
   after(function() {
@@ -95,7 +95,8 @@ describe('Integration test', function() {
       ]);
       logMessages.should.eql(configLogMessages.concat([
         [githubLogMessage],
-        [scriptName + ': GitHub success: ' + helpers.ISSUE_URL]
+        [scriptName + ': ' + helpers.MSG_ID + ': GitHub success: ' +
+         helpers.ISSUE_URL]
       ]));
     });
   });
@@ -116,7 +117,7 @@ describe('Integration test', function() {
       ]);
       logMessages.should.eql(configLogMessages.concat([
         [githubLogMessage],
-        [scriptName + ': GitHub error: test failure']
+        [scriptName + ': ' + helpers.MSG_ID + ': GitHub error: test failure']
       ]));
     });
   });
