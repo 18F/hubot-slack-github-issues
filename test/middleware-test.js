@@ -73,7 +73,7 @@ describe('Middleware', function() {
 
   describe('execute', function() {
     var message, context, fileNewIssue, reply, next, hubotDone,
-        metadata, expectedFileNewIssueArgs, result, logHelper;
+        metadata, expectedFileNewIssueArgs, result, logHelper, doExecute;
 
     beforeEach(function() {
       message = helpers.reactionAddedMessage();
@@ -95,6 +95,25 @@ describe('Middleware', function() {
       logHelper = new LogHelper();
     });
 
+    doExecute = function(done) {
+      var result;
+
+      try {
+        logHelper.captureLog();
+        result = middleware.execute(context, next, hubotDone);
+
+        if (!result) {
+          logHelper.restoreLog();
+          return done(new Error('middleware.execute did not return a Promise'));
+        }
+        return result;
+
+      } catch(err) {
+        logHelper.restoreLog();
+        throw err;
+      }
+    };
+
     it('should ignore messages that do not match', function() {
       message.rawMessage.name = 'sad-face';
       logHelper.captureLog();
@@ -111,12 +130,10 @@ describe('Middleware', function() {
 
     it('should successfully parse a message and file an issue', function(done) {
       fileNewIssue.returns(Promise.resolve(helpers.ISSUE_URL));
-      logHelper.captureLog();
-      result = middleware.execute(context, next, hubotDone);
+      result = doExecute(done);
 
       if (!result) {
-        logHelper.restoreLog();
-        return done(new Error('middleware.execute did not return a Promise'));
+        return;
       }
 
       result.should.be.fulfilled.then(function() {
@@ -137,12 +154,10 @@ describe('Middleware', function() {
 
     it('should parse a message but fail to file an issue', function(done) {
       fileNewIssue.returns(Promise.reject(new Error('test failure')));
-      logHelper.captureLog();
-      result = middleware.execute(context, next, hubotDone);
+      result = doExecute(done);
 
       if (!result) {
-        logHelper.restoreLog();
-        return done(new Error('middleware.execute did not return a Promise'));
+        return;
       }
 
       result.should.be.fulfilled.then(function() {
