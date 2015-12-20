@@ -147,8 +147,10 @@ describe('Middleware', function() {
         next.calledWith(hubotDone).should.be.true;
         hubotDone.called.should.be.false;
         logHelper.messages.should.eql([
-          [scriptName + ': making GitHub request for ' + helpers.PERMALINK],
-          [scriptName + ': GitHub success: ' + helpers.ISSUE_URL]
+          [scriptName + ': ' + helpers.MSG_ID +
+           ': making GitHub request for ' + helpers.PERMALINK],
+          [scriptName + ': ' + helpers.MSG_ID +
+           ': GitHub success: ' + helpers.ISSUE_URL]
         ]);
       }).should.notify(done);
     });
@@ -172,8 +174,10 @@ describe('Middleware', function() {
         next.calledWith(hubotDone).should.be.true;
         hubotDone.called.should.be.false;
         logHelper.messages.should.eql([
-          [scriptName + ': making GitHub request for ' + helpers.PERMALINK],
-          [scriptName + ': GitHub error: test failure']
+          [scriptName + ': ' + helpers.MSG_ID +
+           ': making GitHub request for ' + helpers.PERMALINK],
+          [scriptName + ': ' + helpers.MSG_ID +
+           ': GitHub error: test failure']
         ]);
       }).should.notify(done);
     });
