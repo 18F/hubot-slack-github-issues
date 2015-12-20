@@ -39,8 +39,7 @@ describe('GitHubClient', function() {
     var api = new FakeGitHubApi(
           helpers.ISSUE_URL, null, helpers.githubParams()),
         client = new GitHubClient(config, api);
-    return client.fileNewIssue(
-      helpers.metadata(), 'handbook', helpers.reactionAddedMessage().text)
+    return client.fileNewIssue(helpers.metadata(), 'handbook')
       .should.eventually.equal(helpers.ISSUE_URL);
   });
 

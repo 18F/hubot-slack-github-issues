@@ -83,8 +83,7 @@ exports = module.exports = {
       user:  '18F',
       repo:  'handbook',
       title: exports.metadata().title,
-      body:  'From ' + exports.metadata().url + ':\n\n' +
-        exports.reactionAddedMessage().text
+      body:  exports.metadata().url
     };
   },
 
