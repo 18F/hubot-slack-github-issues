@@ -39,8 +39,7 @@ describe('GitHubClient', function() {
     var issueUrl = 'https://github.com/18F/handbook/issues/1',
         api = new FakeGitHubApi(issueUrl, null, helpers.githubParams()),
         client = new GitHubClient(config, api);
-    return client.fileNewIssue(
-      helpers.metadata(), 'handbook', helpers.reactionAddedMessage().text)
+    return client.fileNewIssue(helpers.metadata(), 'handbook')
       .should.eventually.equal(issueUrl);
   });
 
