@@ -34,7 +34,7 @@ describe('Middleware', function() {
 
   describe('parseMetadata', function() {
     it('should parse GitHub request metadata from a message', function() {
-      middleware.parseMetadata(helpers.reactionAddedMessage().rawMessage)
+      middleware.parseMetadata(helpers.messageWithReactions())
         .should.eql(helpers.metadata());
       slackClientImpl.channelId.should.equal(helpers.CHANNEL_ID);
     });
@@ -160,6 +160,7 @@ describe('Middleware', function() {
         hubotDone.called.should.be.false;
         logHelper.messages.should.eql([
           helpers.matchingRuleLogMessage(),
+          helpers.getReactionsLogMessage(),
           helpers.githubLogMessage(),
           helpers.successLogMessage(),
         ]);
@@ -187,6 +188,7 @@ describe('Middleware', function() {
         hubotDone.called.should.be.false;
         logHelper.messages.should.eql([
           helpers.matchingRuleLogMessage(),
+          helpers.getReactionsLogMessage(),
           helpers.githubLogMessage(),
           helpers.failureLogMessage('test failure')
         ]);
