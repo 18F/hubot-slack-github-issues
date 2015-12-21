@@ -127,6 +127,22 @@ describe('Middleware', function() {
       }
     };
 
+    it('should ignore messages that are not reaction_added', function() {
+      message.rawMessage = { type: 'hello' };
+      logHelper.captureLog();
+      result = middleware.execute(context, next, hubotDone);
+      logHelper.restoreLog();
+      expect(result).to.be.undefined;
+      next.calledOnce.should.be.true;
+      next.calledWith(hubotDone).should.be.true;
+      hubotDone.called.should.be.false;
+      reply.called.should.be.false;
+      getReactions.called.should.be.false;
+      fileNewIssue.called.should.be.false;
+      addSuccessReaction.called.should.be.false;
+      logHelper.messages.should.be.empty;
+    });
+
     it('should ignore messages that do not match', function() {
       message.rawMessage.reaction = 'sad-face';
       logHelper.captureLog();
