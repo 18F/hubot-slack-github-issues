@@ -67,7 +67,7 @@ describe('Middleware', function() {
 
     it('should ignore messages that do not match', function() {
       var message = helpers.reactionAddedMessage().rawMessage;
-      message.name = 'sad-face';
+      message.reaction = 'sad-face';
       expect(middleware.findMatchingRule(message)).to.be.undefined;
     });
   });
@@ -123,7 +123,7 @@ describe('Middleware', function() {
     };
 
     it('should ignore messages that do not match', function() {
-      message.rawMessage.name = 'sad-face';
+      message.rawMessage.reaction = 'sad-face';
       logHelper.captureLog();
       result = middleware.execute(context, next, hubotDone);
       logHelper.restoreLog();

@@ -85,8 +85,7 @@ describe('Integration test', function() {
 
         that.room.messages.push([userName, reaction]);
         reactionMessage.user.name = userName;
-        rawMessage.name = reaction;
-        rawMessage.item.message.reactions[0].name = reaction;
+        rawMessage.reaction = reaction;
         logHelper.captureLog();
         that.room.robot.receive(reactionMessage, resolve);
       }).then(restoreLog, restoreLog);
