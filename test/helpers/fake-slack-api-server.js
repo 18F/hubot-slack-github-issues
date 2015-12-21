@@ -3,13 +3,14 @@
 var http = require('http');
 
 module.exports = {
-  launch: function launch(expectedUrl, expectedParams, statusCode, payload) {
+  launch: function launch(urlsToResponses) {
     var server = new http.Server(function(req, res) {
-      var postBody = '', expectedBody, actualBody;
+      var responseData = urlsToResponses[req.url],
+          postBody = '';
 
-      if (req.url !== expectedUrl) {
+      if (!responseData) {
         res.statusCode = 500;
-        res.end('expected URL ' + expectedUrl + ', actual URL ' + req.url);
+        res.end('unexpected URL: ' + req.url);
         return;
       }
 
@@ -18,11 +19,13 @@ module.exports = {
       });
 
       req.on('end', function() {
-        expectedBody = JSON.stringify(expectedParams);
-        actualBody = JSON.stringify(JSON.parse(postBody));
+        var statusCode = responseData.statusCode,
+            payload = responseData.payload,
+            expectedBody = JSON.stringify(responseData.expectedBody),
+            actualBody = JSON.stringify(JSON.parse(postBody));
 
         if (actualBody !== expectedBody) {
-          statusCode = 500;
+          res.statusCode = 500;
           payload = 'expected body ' + expectedBody +
             ', actual body ' + actualBody;
         }
