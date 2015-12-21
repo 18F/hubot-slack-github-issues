@@ -5,9 +5,9 @@
 'use strict';
 
 var Middleware = require('../lib/middleware');
+var scriptName = require('../package.json').name;
 var GitHubClient = require('../lib/github-client');
 var SlackClient = require('../lib/slack-client');
-var scriptName = require('../package.json').name;
 var helpers = require('./helpers');
 var FakeSlackClientImpl = require('./helpers/fake-slack-client-impl');
 var LogHelper = require('./helpers/log-helper');
@@ -159,10 +159,8 @@ describe('Middleware', function() {
         next.calledWith(hubotDone).should.be.true;
         hubotDone.called.should.be.false;
         logHelper.messages.should.eql([
-          [scriptName + ': ' + helpers.MSG_ID +
-           ': making GitHub request for ' + helpers.PERMALINK],
-          [scriptName + ': ' + helpers.MSG_ID +
-           ': GitHub success: ' + helpers.ISSUE_URL]
+          helpers.githubLogMessage(),
+          helpers.successLogMessage(),
         ]);
       }).should.notify(done);
     });
@@ -186,10 +184,8 @@ describe('Middleware', function() {
         next.calledWith(hubotDone).should.be.true;
         hubotDone.called.should.be.false;
         logHelper.messages.should.eql([
-          [scriptName + ': ' + helpers.MSG_ID +
-           ': making GitHub request for ' + helpers.PERMALINK],
-          [scriptName + ': ' + helpers.MSG_ID +
-           ': GitHub error: test failure']
+          helpers.githubLogMessage(),
+          helpers.failureLogMessage('test failure')
         ]);
       }).should.notify(done);
     });
@@ -215,8 +211,8 @@ describe('Middleware', function() {
         logHelper.restoreLog();
         fileNewIssue.calledOnce.should.be.true;
 
-        inProgressLogMessage = [
-          scriptName + ': ' + helpers.MSG_ID + ': already in progress'];
+        inProgressLogMessage = scriptName + ': ' + helpers.MSG_ID +
+          ': already in progress';
         logHelper.messages.should.include.something.that.deep.equals(
           inProgressLogMessage);
       }).should.notify(done);
@@ -237,8 +233,8 @@ describe('Middleware', function() {
       logHelper.restoreLog();
       expect(result).to.be.undefined;
 
-      alreadyFiledLogMessage = [
-        scriptName + ': ' + helpers.MSG_ID + ': already processed'];
+      alreadyFiledLogMessage = scriptName + ': ' + helpers.MSG_ID +
+        ': already processed';
       logHelper.messages.should.include.something.that.deep.equals(
         alreadyFiledLogMessage);
     });
