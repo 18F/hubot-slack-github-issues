@@ -68,7 +68,8 @@ describe('SlackClient', function() {
 
     it('should fail to make a request if the server is down', function() {
       return slackClient.getReactions(helpers.CHANNEL_ID, helpers.TIMESTAMP)
-        .should.be.rejectedWith('failed to make Slack API request:');
+        .should.be.rejectedWith('failed to make Slack API request ' +
+          'for method reactions.get:');
     });
 
     it('should make an unsuccessful request', function() {
@@ -78,14 +79,15 @@ describe('SlackClient', function() {
       };
       createServer('/api/reactions.get', params, 200, payload);
       return slackClient.getReactions(helpers.CHANNEL_ID, helpers.TIMESTAMP)
-        .should.be.rejectedWith(payload);
+        .should.be.rejectedWith(Error, 'Slack API method reactions.get ' +
+          'failed: ' + payload.error);
     });
 
     it('should make a request that produces a non-200 response', function() {
       createServer('/api/reactions.get', params, 404, 'Not found');
       return slackClient.getReactions(helpers.CHANNEL_ID, helpers.TIMESTAMP)
-        .should.be.rejectedWith(Error,
-          'received 404 response from Slack API: "Not found"');
+        .should.be.rejectedWith(Error, 'received 404 response from ' +
+          'Slack API method reactions.get: "Not found"');
     });
   });
 
