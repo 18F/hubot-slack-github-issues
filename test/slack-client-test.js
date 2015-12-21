@@ -43,7 +43,7 @@ describe('SlackClient', function() {
     var urlsToResponses = {};
 
     urlsToResponses[expectedUrl] = {
-      expectedBody: expectedParams,
+      expectedParams: expectedParams,
       statusCode: statusCode,
       payload: payload
     };
