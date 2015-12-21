@@ -85,8 +85,14 @@ exports = module.exports = {
     };
   },
 
+
   logMessage: function(message) {
     return scriptName + ': ' + exports.MSG_ID + ': ' + message;
+  },
+
+  matchingRuleLogMessage: function() {
+    var matchingRule = exports.baseConfig().rules[2];
+    return exports.logMessage('matches rule: ' + JSON.stringify(matchingRule));
   },
 
   githubLogMessage: function() {

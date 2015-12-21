@@ -92,6 +92,7 @@ describe('Integration test', function() {
       ]);
 
       logMessages.should.eql(configLogMessages.concat([
+        helpers.matchingRuleLogMessage(),
         helpers.githubLogMessage(),
         helpers.successLogMessage()
       ]));
@@ -112,7 +113,9 @@ describe('Integration test', function() {
         ['hubot', '@mikebland failed to create a GitHub issue ' +
          'in 18F/handbook: test failure']
       ]);
+
       logMessages.should.eql(configLogMessages.concat([
+        helpers.matchingRuleLogMessage(),
         helpers.githubLogMessage(),
         helpers.failureLogMessage('test failure')
       ]));

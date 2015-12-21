@@ -159,6 +159,7 @@ describe('Middleware', function() {
         next.calledWith(hubotDone).should.be.true;
         hubotDone.called.should.be.false;
         logHelper.messages.should.eql([
+          helpers.matchingRuleLogMessage(),
           helpers.githubLogMessage(),
           helpers.successLogMessage(),
         ]);
@@ -184,6 +185,7 @@ describe('Middleware', function() {
         next.calledWith(hubotDone).should.be.true;
         hubotDone.called.should.be.false;
         logHelper.messages.should.eql([
+          helpers.matchingRuleLogMessage(),
           helpers.githubLogMessage(),
           helpers.failureLogMessage('test failure')
         ]);
