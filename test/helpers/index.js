@@ -3,6 +3,7 @@
 'use strict';
 
 var SlackClient = require('../../lib/slack-client');
+var scriptName = require('../../package.json').name;
 var testConfig = require('./test-config.json');
 var Hubot = require('hubot');
 var SlackBot = require('hubot-slack');
@@ -85,5 +86,28 @@ exports = module.exports = {
       body:  'From ' + exports.metadata().url + ':\n\n' +
         exports.reactionAddedMessage().text
     };
+  },
+
+  logMessage: function(message) {
+    return scriptName + ': ' + exports.MSG_ID + ': ' + message;
+  },
+
+  githubLogMessage: function() {
+    return exports.logMessage('making GitHub request for ' + exports.PERMALINK);
+  },
+
+  successLogMessage: function() {
+    return exports.logMessage('created: ' + exports.ISSUE_URL);
+  },
+
+  failureMessage: function(message) {
+    var params = exports.githubParams();
+
+    return 'failed to create a GitHub issue in ' +
+      params.user + '/' + params.repo + ': ' + message;
+  },
+
+  failureLogMessage: function(message) {
+    return exports.logMessage(exports.failureMessage(message));
   }
 };

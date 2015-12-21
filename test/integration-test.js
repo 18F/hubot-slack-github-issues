@@ -25,8 +25,7 @@ describe('Integration test', function() {
       slackClient = new SlackClient(
        new FakeSlackClient('handbook'), testConfig),
       githubParams = helpers.githubParams(),
-      logHelper, logMessages,
-      configLogMessages, githubLogMessage;
+      logHelper, logMessages, configLogMessages;
 
   before(function() {
     var configPath = path.join(__dirname, 'helpers', 'test-config.json');
@@ -34,11 +33,9 @@ describe('Integration test', function() {
     process.env.HUBOT_SLACK_GITHUB_ISSUES_CONFIG_PATH = configPath;
     process.env.HUBOT_GITHUB_TOKEN = '<18F-github-token>';
     configLogMessages = [
-      [scriptName + ': loading config from ' + configPath],
-      [scriptName + ': registered receiveMiddleware']
+      scriptName + ': loading config from ' + configPath,
+      scriptName + ': registered receiveMiddleware'
     ];
-    githubLogMessage = scriptName + ': ' + helpers.MSG_ID +
-      ': making GitHub request for ' + helpers.PERMALINK;
   });
 
   after(function() {
@@ -93,10 +90,10 @@ describe('Integration test', function() {
         ['mikebland', 'evergreen_tree'],
         ['hubot', '@mikebland created: ' + helpers.ISSUE_URL]
       ]);
+
       logMessages.should.eql(configLogMessages.concat([
-        [githubLogMessage],
-        [scriptName + ': ' + helpers.MSG_ID + ': GitHub success: ' +
-         helpers.ISSUE_URL]
+        helpers.githubLogMessage(),
+        helpers.successLogMessage()
       ]));
     });
   });
@@ -116,8 +113,8 @@ describe('Integration test', function() {
          'in 18F/handbook: test failure']
       ]);
       logMessages.should.eql(configLogMessages.concat([
-        [githubLogMessage],
-        [scriptName + ': ' + helpers.MSG_ID + ': GitHub error: test failure']
+        helpers.githubLogMessage(),
+        helpers.failureLogMessage('test failure')
       ]));
     });
   });

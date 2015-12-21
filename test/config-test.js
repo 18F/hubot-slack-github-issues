@@ -5,9 +5,9 @@
 'use strict';
 
 var Config = require('../lib/config');
+var scriptName = require('../package.json').name;
 var helpers = require('./helpers');
 var LogHelper = require('./helpers/log-helper');
-var scriptName = require('../package.json').name;
 var chai = require('chai');
 var path = require('path');
 
@@ -65,16 +65,16 @@ describe('Config', function() {
           'missing successReaction',
           'missing rules'
         ],
-        errorMessage = 'Invalid configuration:\n  ' + errors.join('\n  ');
+        errorMsg = 'Invalid configuration:\n  ' + errors.join('\n  ');
 
-    expect(function() { newConfig({}); }).to.throw(errorMessage);
-    expect(logHelper.messages).to.eql([[scriptName + ': ' + errorMessage]]);
+    expect(function() { newConfig({}); }).to.throw(errorMsg);
+    expect(logHelper.messages).to.eql([scriptName + ': ' + errorMsg]);
   });
 
   it('should raise errors for missing required rules fields', function() {
     var config = helpers.baseConfig(),
         errors,
-        errorMessage;
+        errorMsg;
 
     delete config.rules[0].reactionName;
     delete config.rules[0].githubRepository;
@@ -83,16 +83,16 @@ describe('Config', function() {
       'rule 0 missing reactionName',
       'rule 0 missing githubRepository'
     ];
-    errorMessage = 'Invalid configuration:\n  ' + errors.join('\n  ');
+    errorMsg = 'Invalid configuration:\n  ' + errors.join('\n  ');
 
-    expect(function() { newConfig(config); }).to.throw(errorMessage);
-    expect(logHelper.messages).to.eql([[scriptName + ': ' + errorMessage]]);
+    expect(function() { newConfig(config); }).to.throw(errorMsg);
+    expect(logHelper.messages).to.eql([scriptName + ': ' + errorMsg]);
   });
 
   it('should raise errors for unknown properties', function() {
     var config = helpers.baseConfig(),
         errors,
-        errorMessage;
+        errorMsg;
 
     config.foo = {};
     config.bar = {};
@@ -110,10 +110,10 @@ describe('Config', function() {
       'rule 0 contains unknown property baz',
       'rule 3 contains unknown property quux',
     ];
-    errorMessage = 'Invalid configuration:\n  ' + errors.join('\n  ');
+    errorMsg = 'Invalid configuration:\n  ' + errors.join('\n  ');
 
-    expect(function() { newConfig(config); }).to.throw(errorMessage);
-    expect(logHelper.messages).to.eql([[scriptName + ': ' + errorMessage]]);
+    expect(function() { newConfig(config); }).to.throw(errorMsg);
+    expect(logHelper.messages).to.eql([scriptName + ': ' + errorMsg]);
   });
 
   it('should load from HUBOT_SLACK_GITHUB_ISSUES_CONFIG_PATH', function() {
@@ -121,8 +121,8 @@ describe('Config', function() {
         config = newConfig();
     expect(JSON.stringify(config)).to.eql(JSON.stringify(baseConfig));
     expect(logHelper.messages).to.eql([
-      [scriptName + ': loading config from ' +
-       process.env.HUBOT_SLACK_GITHUB_ISSUES_CONFIG_PATH]
+      scriptName + ': loading config from ' +
+        process.env.HUBOT_SLACK_GITHUB_ISSUES_CONFIG_PATH
     ]);
   });
 
@@ -134,7 +134,7 @@ describe('Config', function() {
     config = newConfig();
     expect(JSON.stringify(config)).to.eql(JSON.stringify(defaultConfig));
     expect(logHelper.messages).to.eql([
-      [scriptName + ': loading config from config/slack-github-issues.json']
+      scriptName + ': loading config from config/slack-github-issues.json'
     ]);
   });
 });
