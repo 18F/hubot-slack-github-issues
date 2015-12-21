@@ -44,22 +44,12 @@ exports = module.exports = {
     message = {
       type: SlackClient.REACTION_ADDED,
       user: exports.USER_ID,
-      name: exports.REACTION,
       item: {
         type: 'message',
         channel: exports.CHANNEL_ID,
-        message: {
-          ts: exports.TIMESTAMP,
-          text: text,
-          reactions: [
-            {
-              name: exports.REACTION,
-              count: 1,
-              users: [ exports.USER_ID ]
-            }
-          ]
-        }
+        ts: exports.TIMESTAMP
       },
+      reaction: exports.REACTION,
       'event_ts': exports.TIMESTAMP
     };
     return new SlackBot.SlackTextMessage(user, text, text, message);
