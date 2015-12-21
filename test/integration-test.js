@@ -43,7 +43,7 @@ describe('Integration test', function() {
 
     slackApiServerUrls = {
       '/api/reactions.get': {
-        expectedBody: {
+        expectedParams: {
           channel: helpers.CHANNEL_ID,
           timestamp: helpers.TIMESTAMP,
           token: process.env.HUBOT_SLACK_TOKEN
@@ -52,7 +52,7 @@ describe('Integration test', function() {
         payload: helpers.messageWithReactions()
       },
       '/api/reactions.add': {
-        expectedBody: {
+        expectedParams: {
           channel: helpers.CHANNEL_ID,
           timestamp: helpers.TIMESTAMP,
           name: helpers.SUCCESS_REACTION,

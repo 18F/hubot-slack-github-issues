@@ -1,12 +1,17 @@
 /* jshint node: true */
 
 var http = require('http');
+var querystring = require('querystring');
+var url = require('url');
 
 module.exports = {
   launch: function launch(urlsToResponses) {
     var server = new http.Server(function(req, res) {
-      var responseData = urlsToResponses[req.url],
-          postBody = '';
+      var baseUrl = url.parse(req.url),
+          responseData = urlsToResponses[baseUrl.pathname],
+          payload,
+          expectedParams,
+          actualParams;
 
       if (!responseData) {
         res.statusCode = 500;
@@ -14,24 +19,17 @@ module.exports = {
         return;
       }
 
-      req.on('data', function(chunk) {
-        postBody = postBody + chunk.toString();
-      });
+      res.statusCode = responseData.statusCode;
+      payload = responseData.payload;
+      expectedParams = JSON.stringify(responseData.expectedParams);
+      actualParams = JSON.stringify(querystring.parse(baseUrl.query));
 
-      req.on('end', function() {
-        var statusCode = responseData.statusCode,
-            payload = responseData.payload,
-            expectedBody = JSON.stringify(responseData.expectedBody),
-            actualBody = JSON.stringify(JSON.parse(postBody));
-
-        if (actualBody !== expectedBody) {
-          res.statusCode = 500;
-          payload = 'expected body ' + expectedBody +
-            ', actual body ' + actualBody;
-        }
-        res.statusCode = statusCode;
-        res.end(JSON.stringify(payload));
-      });
+      if (actualParams !== expectedParams) {
+        res.statusCode = 500;
+        payload = 'expected params ' + expectedParams +
+          ', actual params ' + actualParams;
+      }
+      res.end(JSON.stringify(payload));
     });
     server.listen(0);
     return server;
