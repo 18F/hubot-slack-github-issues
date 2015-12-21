@@ -224,7 +224,7 @@ describe('Middleware', function() {
     });
 
     it('should not file another issue for the same message when ' +
-      'one is already filed ', function() {
+      'one is already filed ', function(done) {
       var result, alreadyFiledLogMessage;
 
       message.rawMessage.item.message.reactions.push({
@@ -232,16 +232,21 @@ describe('Middleware', function() {
         count: 1,
         users: [ helpers.USER_ID ]
       });
+      result = doExecute();
 
-      logHelper.captureLog();
-      result = middleware.execute(context, next, hubotDone);
-      logHelper.restoreLog();
-      expect(result).to.be.undefined;
+      if (!result) {
+        return;
+      }
 
-      alreadyFiledLogMessage = scriptName + ': ' + helpers.MSG_ID +
-        ': already processed';
-      logHelper.messages.should.include.something.that.deep.equals(
-        alreadyFiledLogMessage);
+      return result.should.become(undefined).then(function() {
+        logHelper.restoreLog();
+        fileNewIssue.notCalled.should.be.true;
+
+        alreadyFiledLogMessage = scriptName + ': ' + helpers.MSG_ID +
+          ': already processed ' + helpers.PERMALINK;
+        logHelper.messages.should.include.something.that.deep.equals(
+          alreadyFiledLogMessage);
+      }).should.notify(done);
     });
   });
 });
