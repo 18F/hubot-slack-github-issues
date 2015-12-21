@@ -12,7 +12,7 @@ var testConfig = require('./helpers/test-config.json');
 var LogHelper = require('./helpers/log-helper');
 var SlackClient = require('../lib/slack-client');
 var GitHubClient = require('../lib/github-client');
-var FakeSlackClient = require('./helpers/fake-slack-client');
+var FakeSlackClientImpl = require('./helpers/fake-slack-client-impl');
 var FakeGitHubApi = require('./helpers/fake-github-api');
 
 var path = require('path');
@@ -23,7 +23,7 @@ chai.should();
 describe('Integration test', function() {
   var middlewareImpl = null,
       slackClient = new SlackClient(
-       new FakeSlackClient('handbook'), testConfig),
+       new FakeSlackClientImpl('handbook'), testConfig),
       githubParams = helpers.githubParams(),
       logHelper, logMessages, configLogMessages;
 

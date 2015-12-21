@@ -9,7 +9,7 @@ var scriptName = require('../package.json').name;
 var GitHubClient = require('../lib/github-client');
 var SlackClient = require('../lib/slack-client');
 var helpers = require('./helpers');
-var FakeSlackClient = require('./helpers/fake-slack-client');
+var FakeSlackClientImpl = require('./helpers/fake-slack-client-impl');
 var LogHelper = require('./helpers/log-helper');
 var sinon = require('sinon');
 var chai = require('chai');
@@ -22,22 +22,22 @@ chai.use(chaiAsPromised);
 chai.use(chaiThings);
 
 describe('Middleware', function() {
-  var config, slackClient, githubClient, middleware;
+  var config, slackClientImpl, slackClient, githubClient, middleware;
 
   beforeEach(function() {
     config = helpers.baseConfig();
-    slackClient = new FakeSlackClient('handbook');
+    slackClientImpl = new FakeSlackClientImpl('handbook');
+    slackClient = new SlackClient(slackClientImpl, config);
     githubClient = new GitHubClient(helpers.baseConfig(), {});
-    middleware = new Middleware(
-      config, new SlackClient(slackClient, config), githubClient);
+    middleware = new Middleware(config, slackClient, githubClient);
   });
 
   describe('parseMetadata', function() {
     it('should parse GitHub request metadata from a message', function() {
       middleware.parseMetadata(helpers.messageWithReactions())
         .should.eql(helpers.metadata());
-      slackClient.channelId.should.equal(helpers.CHANNEL_ID);
-      slackClient.userId.should.equal(helpers.USER_ID);
+      slackClientImpl.channelId.should.equal(helpers.CHANNEL_ID);
+      slackClientImpl.userId.should.equal(helpers.USER_ID);
     });
   });
 
@@ -73,7 +73,7 @@ describe('Middleware', function() {
   });
 
   describe('execute', function() {
-    var message, context, fileNewIssue, reply, next, hubotDone,
+    var message, context, getReactions, fileNewIssue, reply, next, hubotDone,
         metadata, expectedFileNewIssueArgs, result, logHelper, doExecute;
 
     beforeEach(function() {
