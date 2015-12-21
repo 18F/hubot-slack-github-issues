@@ -65,16 +65,36 @@ exports = module.exports = {
     return new SlackBot.SlackTextMessage(user, text, text, message);
   },
 
+  messageWithReactions: function() {
+    return {
+      ok: true,
+      type: 'message',
+      channel: exports.CHANNEL_ID,
+      message: {
+        type: 'message',
+        user: exports.USER_ID,
+        ts: exports.TIMESTAMP,
+        permalink: exports.PERMALINK,
+        reactions: [
+          {
+            name: exports.REACTION,
+            count: 1,
+            users: [ exports.USER_ID ]
+          }
+        ]
+      }
+    };
+  },
+
   metadata: function() {
     return {
-      domain: '18f',
       channel: 'handbook',
       user: 'mikebland',
       timestamp: exports.TIMESTAMP,
+      url: exports.PERMALINK,
       date: new Date(1360782804.083113 * 1000),
       title: 'Update from @mikebland in #handbook at ' +
-        'Wed, 13 Feb 2013 19:13:24 GMT',
-      url: exports.PERMALINK
+        'Wed, 13 Feb 2013 19:13:24 GMT'
     };
   },
 
@@ -94,6 +114,10 @@ exports = module.exports = {
   matchingRuleLogMessage: function() {
     var matchingRule = exports.baseConfig().rules[2];
     return exports.logMessage('matches rule: ' + JSON.stringify(matchingRule));
+  },
+
+  getReactionsLogMessage: function() {
+    return exports.logMessage('getting reactions for ' + exports.PERMALINK);
   },
 
   githubLogMessage: function() {

@@ -93,6 +93,7 @@ describe('Integration test', function() {
 
       logMessages.should.eql(configLogMessages.concat([
         helpers.matchingRuleLogMessage(),
+        helpers.getReactionsLogMessage(),
         helpers.githubLogMessage(),
         helpers.successLogMessage()
       ]));
@@ -117,6 +118,7 @@ describe('Integration test', function() {
 
       logMessages.should.eql(configLogMessages.concat([
         helpers.matchingRuleLogMessage(),
+        helpers.getReactionsLogMessage(),
         helpers.githubLogMessage(),
         helpers.failureLogMessage('test failure')
       ]));
