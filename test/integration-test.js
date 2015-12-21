@@ -25,6 +25,7 @@ describe('Integration test', function() {
   var middlewareImpl = null,
       slackClient = new SlackClient(
        new FakeSlackClientImpl('handbook'), testConfig),
+      slackApiServerUrls,
       slackApiServer,
       githubParams = helpers.githubParams(),
       logHelper, logMessages, configLogMessages;
@@ -40,7 +41,7 @@ describe('Integration test', function() {
       scriptName + ': registered receiveMiddleware'
     ];
 
-    slackApiServer = launchSlackApiServer({
+    slackApiServerUrls = {
       '/api/reactions.get': {
         expectedParams: {
           channel: helpers.CHANNEL_ID,
@@ -49,8 +50,19 @@ describe('Integration test', function() {
         },
         statusCode: 200,
         payload: helpers.messageWithReactions()
+      },
+      '/api/reactions.add': {
+        expectedParams: {
+          channel: helpers.CHANNEL_ID,
+          timestamp: helpers.TIMESTAMP,
+          name: helpers.SUCCESS_REACTION,
+          token: process.env.HUBOT_SLACK_TOKEN
+        },
+        statusCode: 200,
+        payload: { ok: true }
       }
-    });
+    };
+    slackApiServer = launchSlackApiServer(slackApiServerUrls);
     slackClient.protocol = 'http:';
     slackClient.host = 'localhost';
     slackClient.port = slackApiServer.address().port;
@@ -114,6 +126,7 @@ describe('Integration test', function() {
         helpers.matchingRuleLogMessage(),
         helpers.getReactionsLogMessage(),
         helpers.githubLogMessage(),
+        helpers.addSuccessReactionLogMessage(),
         helpers.successLogMessage()
       ]));
     });

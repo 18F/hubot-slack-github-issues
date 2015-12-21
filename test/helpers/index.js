@@ -10,6 +10,7 @@ var SlackBot = require('hubot-slack');
 
 exports = module.exports = {
   REACTION: 'evergreen_tree',
+  SUCCESS_REACTION: 'heavy_check_mark',
   USER_ID: 'U5150OU812',
   CHANNEL_ID: 'C5150OU812',
   TIMESTAMP: '1360782804.083113',
@@ -110,6 +111,10 @@ exports = module.exports = {
 
   githubLogMessage: function() {
     return exports.logMessage('making GitHub request for ' + exports.PERMALINK);
+  },
+
+  addSuccessReactionLogMessage: function() {
+    return exports.logMessage('adding ' + exports.SUCCESS_REACTION);
   },
 
   successLogMessage: function() {
