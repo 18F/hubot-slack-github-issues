@@ -38,7 +38,6 @@ describe('Middleware', function() {
       middleware.parseMetadata(helpers.reactionAddedMessage().rawMessage)
         .should.eql(helpers.metadata());
       slackClientImpl.channelId.should.equal(helpers.CHANNEL_ID);
-      slackClientImpl.userId.should.equal(helpers.USER_ID);
     });
   });
 

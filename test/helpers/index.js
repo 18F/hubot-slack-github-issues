@@ -68,11 +68,9 @@ exports = module.exports = {
     return {
       domain: '18f',
       channel: 'handbook',
-      user: 'mikebland',
       timestamp: exports.TIMESTAMP,
       date: new Date(1360782804.083113 * 1000),
-      title: 'Update from @mikebland in #handbook at ' +
-        'Wed, 13 Feb 2013 19:13:24 GMT',
+      title: 'Update from #handbook at Wed, 13 Feb 2013 19:13:24 GMT',
       url: exports.PERMALINK
     };
   },
