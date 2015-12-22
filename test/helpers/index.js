@@ -9,6 +9,8 @@ var Hubot = require('hubot');
 var SlackBot = require('hubot-slack');
 
 exports = module.exports = {
+  GITHUB_USER: '18F',
+  REPOSITORY: 'handbook',
   REACTION: 'evergreen_tree',
   SUCCESS_REACTION: 'heavy_check_mark',
   USER_ID: 'U5150OU812',
@@ -91,8 +93,6 @@ exports = module.exports = {
 
   githubParams: function() {
     return {
-      user:  '18F',
-      repo:  'handbook',
       title: exports.metadata().title,
       body:  exports.metadata().url
     };
@@ -124,10 +124,8 @@ exports = module.exports = {
   },
 
   failureMessage: function(message) {
-    var params = exports.githubParams();
-
     return 'failed to create a GitHub issue in ' +
-      params.user + '/' + params.repo + ': ' + message;
+      exports.GITHUB_USER + '/' + exports.REPOSITORY + ': ' + message;
   },
 
   failureLogMessage: function(message) {

@@ -43,7 +43,7 @@ describe('GitHubClient', function() {
         };
 
     githubApiServer = launchServer('/repos/18F/handbook/issues',
-      expectedParams, statusCode, payload);
+      helpers.REPOSITORY, expectedParams, statusCode, payload);
     githubClient.port = githubApiServer.address().port;
   };
 

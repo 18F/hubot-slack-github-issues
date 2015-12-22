@@ -118,7 +118,7 @@ describe('Integration test', function() {
         };
 
     githubApiServer = launchGitHubApiServer('/repos/18F/handbook/issues',
-      expectedParams, statusCode, payload);
+      helpers.REPOSITORY, expectedParams, statusCode, payload);
     githubClient.port = githubApiServer.address().port;
   };
 
