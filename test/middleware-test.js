@@ -22,14 +22,14 @@ chai.use(chaiAsPromised);
 chai.use(chaiThings);
 
 describe('Middleware', function() {
-  var config, slackClientImpl, githubClient, middleware;
+  var config, slackClientImpl, slackClient, githubClient, middleware;
 
   beforeEach(function() {
     config = helpers.baseConfig();
     slackClientImpl = new FakeSlackClientImpl('handbook');
+    slackClient = new SlackClient(slackClientImpl, config);
     githubClient = new GitHubClient(helpers.baseConfig(), {});
-    middleware = new Middleware(
-      config, new SlackClient(slackClientImpl, config), githubClient);
+    middleware = new Middleware(config, slackClient, githubClient);
   });
 
   describe('parseMetadata', function() {
@@ -72,8 +72,9 @@ describe('Middleware', function() {
   });
 
   describe('execute', function() {
-    var message, context, fileNewIssue, reply, next, hubotDone,
-        metadata, expectedFileNewIssueArgs, result, logHelper, doExecute;
+    var message, context, getReactions, fileNewIssue, reply, next, hubotDone,
+        metadata, expectedGetReactionsArgs, expectedFileNewIssueArgs,
+        result, logHelper, doExecute;
 
     beforeEach(function() {
       message = helpers.reactionAddedMessage();
@@ -84,14 +85,21 @@ describe('Middleware', function() {
         }
       };
 
+      getReactions = sinon.stub(slackClient, 'getReactions');
       fileNewIssue = sinon.stub(githubClient, 'fileNewIssue');
       reply = context.response.reply;
       next = sinon.spy();
       hubotDone = sinon.spy();
 
       metadata = helpers.metadata();
+      expectedGetReactionsArgs = [helpers.CHANNEL_ID, helpers.TIMESTAMP];
       expectedFileNewIssueArgs = [metadata, 'handbook'];
       logHelper = new LogHelper();
+    });
+
+    afterEach(function() {
+      githubClient.fileNewIssue.restore();
+      slackClient.getReactions.restore();
     });
 
     doExecute = function(done) {
@@ -123,6 +131,7 @@ describe('Middleware', function() {
       next.calledWith(hubotDone).should.be.true;
       hubotDone.called.should.be.false;
       reply.called.should.be.false;
+      getReactions.called.should.be.false;
       fileNewIssue.called.should.be.false;
       logHelper.messages.should.be.empty;
     });
@@ -137,11 +146,13 @@ describe('Middleware', function() {
       next.calledWith(hubotDone).should.be.true;
       hubotDone.called.should.be.false;
       reply.called.should.be.false;
+      getReactions.called.should.be.false;
       fileNewIssue.called.should.be.false;
       logHelper.messages.should.be.empty;
     });
 
     it('should successfully parse a message and file an issue', function(done) {
+      getReactions.returns(Promise.resolve(helpers.messageWithReactions()));
       fileNewIssue.returns(Promise.resolve(helpers.ISSUE_URL));
       result = doExecute(done);
 
@@ -151,6 +162,8 @@ describe('Middleware', function() {
 
       result.should.become(helpers.ISSUE_URL).then(function() {
         logHelper.restoreLog();
+        getReactions.calledOnce.should.be.true;
+        getReactions.firstCall.args.should.eql(expectedGetReactionsArgs);
         fileNewIssue.calledOnce.should.be.true;
         fileNewIssue.firstCall.args.should.eql(expectedFileNewIssueArgs);
         reply.calledOnce.should.be.true;
@@ -170,6 +183,7 @@ describe('Middleware', function() {
     it('should parse a message but fail to file an issue', function(done) {
       var errorMessage = helpers.failureMessage('test failure');
 
+      getReactions.returns(Promise.resolve(helpers.messageWithReactions()));
       fileNewIssue.returns(Promise.reject(new Error('test failure')));
       result = doExecute(done);
 
@@ -179,6 +193,8 @@ describe('Middleware', function() {
 
       result.should.be.rejectedWith(Error, errorMessage).then(function() {
         logHelper.restoreLog();
+        getReactions.calledOnce.should.be.true;
+        getReactions.firstCall.args.should.eql(expectedGetReactionsArgs);
         fileNewIssue.calledOnce.should.be.true;
         fileNewIssue.firstCall.args.should.eql(expectedFileNewIssueArgs);
         reply.calledOnce.should.be.true;
@@ -197,6 +213,7 @@ describe('Middleware', function() {
 
     it('should not file another issue for the same message when ' +
       'one is in progress', function(done) {
+      getReactions.returns(Promise.resolve(helpers.messageWithReactions()));
       fileNewIssue.returns(Promise.resolve(helpers.ISSUE_URL));
       result = doExecute(done);
 
@@ -214,6 +231,7 @@ describe('Middleware', function() {
         var inProgressLogMessage;
 
         logHelper.restoreLog();
+        getReactions.calledOnce.should.be.true;
         fileNewIssue.calledOnce.should.be.true;
 
         inProgressLogMessage = scriptName + ': ' + helpers.MSG_ID +
@@ -225,13 +243,17 @@ describe('Middleware', function() {
 
     it('should not file another issue for the same message when ' +
       'one is already filed ', function(done) {
-      var result, alreadyFiledLogMessage;
+      var messageWithReactions = helpers.messageWithReactions(),
+          result, alreadyFiledLogMessage;
 
-      message.rawMessage.item.message.reactions.push({
+      messageWithReactions.message.reactions.push({
         name: config.successReaction,
         count: 1,
         users: [ helpers.USER_ID ]
       });
+
+      getReactions.returns(messageWithReactions);
+      getReactions.returns(Promise.resolve(messageWithReactions));
       result = doExecute();
 
       if (!result) {
@@ -240,6 +262,7 @@ describe('Middleware', function() {
 
       return result.should.become(undefined).then(function() {
         logHelper.restoreLog();
+        getReactions.calledOnce.should.be.true;
         fileNewIssue.notCalled.should.be.true;
 
         alreadyFiledLogMessage = scriptName + ': ' + helpers.MSG_ID +

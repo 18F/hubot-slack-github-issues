@@ -11,6 +11,7 @@ var helpers = require('./helpers');
 var testConfig = require('./helpers/test-config.json');
 var LogHelper = require('./helpers/log-helper');
 var SlackClient = require('../lib/slack-client');
+var launchSlackApiServer = require('./helpers/fake-slack-api-server').launch;
 var GitHubClient = require('../lib/github-client');
 var FakeSlackClientImpl = require('./helpers/fake-slack-client-impl');
 var FakeGitHubApi = require('./helpers/fake-github-api');
@@ -24,6 +25,7 @@ describe('Integration test', function() {
   var middlewareImpl = null,
       slackClient = new SlackClient(
        new FakeSlackClientImpl('handbook'), testConfig),
+      slackApiServer,
       githubParams = helpers.githubParams(),
       logHelper, logMessages, configLogMessages;
 
@@ -31,15 +33,33 @@ describe('Integration test', function() {
     var configPath = path.join(__dirname, 'helpers', 'test-config.json');
 
     process.env.HUBOT_SLACK_GITHUB_ISSUES_CONFIG_PATH = configPath;
+    process.env.HUBOT_SLACK_TOKEN = '<18F-github-token>';
     process.env.HUBOT_GITHUB_TOKEN = '<18F-github-token>';
     configLogMessages = [
       scriptName + ': loading config from ' + configPath,
       scriptName + ': registered receiveMiddleware'
     ];
+
+    slackApiServer = launchSlackApiServer({
+      '/api/reactions.get': {
+        expectedParams: {
+          channel: helpers.CHANNEL_ID,
+          timestamp: helpers.TIMESTAMP,
+          token: process.env.HUBOT_SLACK_TOKEN
+        },
+        statusCode: 200,
+        payload: helpers.messageWithReactions()
+      }
+    });
+    slackClient.protocol = 'http:';
+    slackClient.host = 'localhost';
+    slackClient.port = slackApiServer.address().port;
   });
 
   after(function() {
+    slackApiServer.close();
     delete process.env.HUBOT_GITHUB_TOKEN;
+    delete process.env.HUBOT_SLACK_TOKEN;
     delete process.env.HUBOT_SLACK_GITHUB_ISSUES_CONFIG_PATH;
   });
 
