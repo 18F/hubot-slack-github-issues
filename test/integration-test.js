@@ -129,7 +129,7 @@ describe('Integration test', function() {
 
   context('an evergreen_tree reaction to a message', function() {
     beforeEach(function() {
-      createGitHubApiServer(200, { url: helpers.ISSUE_URL });
+      createGitHubApiServer(200, { 'html_url': helpers.ISSUE_URL });
       return this.room.user.react('mikebland', 'evergreen_tree');
     });
 

@@ -48,7 +48,7 @@ describe('GitHubClient', function() {
   };
 
   it('should successfully file an issue', function() {
-    createServer(201, { url: helpers.ISSUE_URL });
+    createServer(201, { 'html_url': helpers.ISSUE_URL });
     return githubClient.fileNewIssue(helpers.metadata(), 'handbook')
       .should.eventually.equal(helpers.ISSUE_URL);
   });
