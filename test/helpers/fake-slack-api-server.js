@@ -1,34 +1,35 @@
 /* jshint node: true */
 
 var http = require('http');
+var querystring = require('querystring');
+var url = require('url');
 
 module.exports = {
-  launch: function launch(expectedUrl, expectedParams, statusCode, payload) {
+  launch: function launch(urlsToResponses) {
     var server = new http.Server(function(req, res) {
-      var postBody = '', expectedBody, actualBody;
+      var baseUrl = url.parse(req.url),
+          responseData = urlsToResponses[baseUrl.pathname],
+          payload,
+          expectedParams,
+          actualParams;
 
-      if (req.url !== expectedUrl) {
+      if (!responseData) {
         res.statusCode = 500;
-        res.end('expected URL ' + expectedUrl + ', actual URL ' + req.url);
+        res.end('unexpected URL: ' + req.url);
         return;
       }
 
-      req.on('data', function(chunk) {
-        postBody = postBody + chunk.toString();
-      });
+      res.statusCode = responseData.statusCode;
+      payload = responseData.payload;
+      expectedParams = JSON.stringify(responseData.expectedParams);
+      actualParams = JSON.stringify(querystring.parse(baseUrl.query));
 
-      req.on('end', function() {
-        expectedBody = JSON.stringify(expectedParams);
-        actualBody = JSON.stringify(JSON.parse(postBody));
-
-        if (actualBody !== expectedBody) {
-          statusCode = 500;
-          payload = 'expected body ' + expectedBody +
-            ', actual body ' + actualBody;
-        }
-        res.statusCode = statusCode;
-        res.end(payload);
-      });
+      if (actualParams !== expectedParams) {
+        res.statusCode = 500;
+        payload = 'expected params ' + expectedParams +
+          ', actual params ' + actualParams;
+      }
+      res.end(JSON.stringify(payload));
     });
     server.listen(0);
     return server;
