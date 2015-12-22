@@ -30,7 +30,7 @@ describe('SlackClient', function() {
 
   beforeEach(function() {
     slackApiServer = undefined;
-    payload = '{ "message": "Hello, world!" }';
+    payload = JSON.stringify({ 'message': 'Hello, world!' });
   });
 
   afterEach(function() {
@@ -40,8 +40,14 @@ describe('SlackClient', function() {
   });
 
   createServer = function(expectedUrl, expectedParams, statusCode, payload) {
-    slackApiServer = launchServer(expectedUrl, expectedParams,
-      statusCode, payload);
+    var urlsToResponses = {};
+
+    urlsToResponses[expectedUrl] = {
+      expectedBody: expectedParams,
+      statusCode: statusCode,
+      payload: payload
+    };
+    slackApiServer = launchServer(urlsToResponses);
     slackClient.port = slackApiServer.address().port;
   };
 
