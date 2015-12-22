@@ -90,8 +90,7 @@ describe('Middleware', function() {
       hubotDone = sinon.spy();
 
       metadata = helpers.metadata();
-      expectedFileNewIssueArgs = [metadata, 'handbook',
-        helpers.reactionAddedMessage().rawMessage.item.message.text];
+      expectedFileNewIssueArgs = [metadata, 'handbook'];
       logHelper = new LogHelper();
     });
 
