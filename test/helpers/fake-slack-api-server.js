@@ -30,7 +30,7 @@ module.exports = {
             ', actual body ' + actualBody;
         }
         res.statusCode = statusCode;
-        res.end(payload);
+        res.end(JSON.stringify(payload));
       });
     });
     server.listen(0);

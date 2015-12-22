@@ -30,7 +30,7 @@ describe('SlackClient', function() {
 
   beforeEach(function() {
     slackApiServer = undefined;
-    payload = JSON.stringify({ 'message': 'Hello, world!' });
+    payload = { 'message': 'Hello, world!' };
   });
 
   afterEach(function() {
@@ -75,8 +75,8 @@ describe('SlackClient', function() {
       // 300-family requests will currently fail as well.
       createServer('/api/reactions.get', params, 404, 'Not found');
       return slackClient.getReactions(helpers.CHANNEL_ID, helpers.TIMESTAMP)
-        .should.be.rejectedWith('received 404 response from Slack API: ' +
-          'Not found');
+        .should.be.rejectedWith(Error,
+          'received 404 response from Slack API: "Not found"');
     });
   });
 
