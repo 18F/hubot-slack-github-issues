@@ -145,6 +145,27 @@ describe('Config', function() {
       ]);
     });
 
+    it('should detect unsorted channel names', function() {
+      var config = helpers.baseConfig(),
+          errorMessage;
+
+      config.rules[0].githubRepository = 'guides';
+      config.rules[0].channelNames = ['wg-testing', 'wg-documentation'];
+      config.rules[1].githubRepository = 'handbook';
+      config.rules[1].channelNames = ['hub', 'handbook'];
+      errorMessage = 'Invalid configuration:\n' +
+        '  channelNames for evergreen_tree rule 0 are not sorted; expected:\n' +
+        '    wg-documentation\n' +
+        '    wg-testing\n' +
+        '  channelNames for evergreen_tree rule 1 are not sorted; expected:\n' +
+        '    handbook\n' +
+        '    hub';
+      expect(function() { newConfig(config); }).to.throw(errorMessage);
+      expect(logHelper.messages).to.eql([
+        [scriptName + ': ' + errorMessage]
+      ]);
+    });
+
     it('should detect duplicate repos for same reaction', function() {
       var config = helpers.baseConfig(),
           errorMessage;

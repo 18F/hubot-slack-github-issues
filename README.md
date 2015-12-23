@@ -158,6 +158,7 @@ the following ordering rules. The script will abort otherwise:
 To ensure that rules behave as expected, the script also enforces
 following conditions for each set of rules pertaining to a `reactionName`:
 
+- Each rule's `channelNames` list is sorted
 - Each `githubRepository` value is unique
 - Each value in `channelNames` is unique across every rule
 - Only the last rule can leave `channelNames` undefined, as this rule will
