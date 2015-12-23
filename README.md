@@ -3,9 +3,29 @@
 [![Build Status](https://travis-ci.org/18F/hubot-slack-github-issues.svg?branch=master)](https://travis-ci.org/18F/hubot-slack-github-issues)
 
 [Hubot](https://hubot.github.com/) plugin that creates
-[GitHub](https://github.com/) issues from
-[Slack messages that receive a specific emoji
-reaction](https://api.slack.com/events/reaction_added).
+[GitHub](https://github.com/) issues from [Slack](https://slack.com/) messages
+that receive a specific emoji reaction.
+
+This plugin is for use by organizations that use Slack to communicate and who
+use GitHub to track issues. The goal is to enable team members to document or
+to act upon important parts of conversations more easily.
+
+## How it works
+
+It works by registering [receive middleware](https://hubot.github.com/docs/scripting/#receive-middleware)
+that listens for [`reaction_added` events](https://api.slack.com/events/reaction_added).
+When team members add an emoji reaction to a message, the resulting event is
+matched against a set of [configuration rules](#configuration).
+If a match is found, the plugin will [retrieve the list of
+reactions](https://api.slack.com/methods/reactions.get) for the message.
+
+Provided that the message has not already been processed, the plugin will
+[create a GitHub issue](https://developer.github.com/v3/issues/#create-an-issue) for the
+message based on the the rule. The issue will contain a link to the message.
+At this point, the plugin will [add a reaction to the
+message](https://api.slack.com/methods/reactions.add) with an emoji indicating
+success, and the issue URL is posted to the channel in which the message
+appeared.
 
 ## Installation
 
@@ -78,6 +98,30 @@ The following environment variables must also be set:
 The following environment variables are optional:
 * `HUBOT_SLACK_GITHUB_ISSUES_CONFIG_PATH`: the path to the configuration file;
   defaults to `config/slack-github-issues.json`
+
+## Developing
+
+Ensure that [Node.js](https://nodejs.org/) is installed on your system. This
+plugin requires version 4.2 or greater or version 5 or greater. You
+may wish to use a version manager such as
+[nvm](https://github.com/creationix/nvm) to manage different Node.js versions.
+
+After cloning this repository, do the following to ensure your installation is
+in a good state:
+
+```sh
+$ cd hubot-slack-github-issues
+$ npm install
+$ npm run-script lint
+$ npm test
+```
+
+After making changes, run `npm run-script lint` and `npm test` frequently. Add
+new tests in [the `test` directory](./test/) for any new functionality, or to
+reproduce any bugs you intend to fix.
+
+If you'd like to contribute to this repository, please follow our
+[CONTRIBUTING guidelines](./CONTRIBUTING.md).
 
 ## Public domain
 

@@ -48,7 +48,8 @@ follow the instructions above and create a branch for yourself first.  Prior
 to submitting the pull request, please make note of the following:
 
 1. Code changes should be accompanied by tests.
-2. Please run the tests (`$ ./go test`) to make sure there are no regressions.
+2. Please run the tests (`$ npm test`) and the linter
+  (`$ npm run-script lint`) to make sure there are no regressions.
 
 Once everything is ready to go, [submit your pull request](https://help.github.com/articles/using-pull-requests/)!
 When creating a pull request please be sure to reference the issue number it
