@@ -159,6 +159,8 @@ The script will also abort under the following conditions:
 
 - More than one rule for the same `reactionName` shares the same
   `githubRepository` value
+- An element of `channelNames` appears in more than one rule for the same
+  `reactionName`
 
 ### Environment variables
 

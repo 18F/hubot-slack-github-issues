@@ -160,5 +160,27 @@ describe('Config', function() {
         [scriptName + ': ' + errorMessage]
       ]);
     });
+
+    it('should detect duplicate repos and channels for reaction', function() {
+      var config = helpers.baseConfig(),
+          errorMessage;
+
+      config.rules.forEach(function(rule) {
+        rule.githubRepository = 'handbook';
+        rule.channelNames = ['hub'];
+      });
+
+      config.rules[0].channelNames.unshift('handbook');
+      config.rules[1].channelNames.push('wg-documentation');
+      errorMessage = 'Invalid configuration:\n' +
+        '  duplicate repositories for evergreen_tree rules:\n' +
+        '    handbook\n' +
+        '  duplicate channels for evergreen_tree rules:\n' +
+        '    hub';
+      expect(function() { newConfig(config); }).to.throw(errorMessage);
+      expect(logHelper.messages).to.eql([
+        [scriptName + ': ' + errorMessage]
+      ]);
+    });
   });
 });
