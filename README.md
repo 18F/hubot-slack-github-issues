@@ -1,4 +1,4 @@
-# hubot-slack-github-issues - WORK IN PROGRESS!
+# hubot-slack-github-issues
 
 [![Build Status](https://travis-ci.org/18F/hubot-slack-github-issues.svg?branch=master)](https://travis-ci.org/18F/hubot-slack-github-issues)
 
