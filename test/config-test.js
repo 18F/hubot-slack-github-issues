@@ -42,21 +42,6 @@ describe('Config', function() {
     expect(JSON.stringify(config)).to.equal(JSON.stringify(baseConfig));
   });
 
-  it('should validate a rule specifying a channel', function() {
-    var configWithChannelRule = helpers.baseConfig(),
-        config;
-    
-    configWithChannelRule.rules.push({
-      'reactionName': 'smiley',
-      'githubRepository': '18F/hubot-slack-github-issues',
-      'channelNames': ['hub']
-    });
-    config = newConfig(configWithChannelRule);
-    expect(JSON.stringify(config)).to.eql(
-      JSON.stringify(configWithChannelRule));
-    expect(logHelper.messages).to.be.empty;
-  });
-
   it('should raise errors for missing required fields', function() {
     var errors = [
           'missing githubUser',
@@ -136,5 +121,28 @@ describe('Config', function() {
     expect(logHelper.messages).to.eql([
       scriptName + ': loading config from config/slack-github-issues.json'
     ]);
+  });
+
+  describe('checkForMisconfiguredRules', function() {
+    it('should detect when rules are not sorted', function() {
+      var config = helpers.baseConfig(),
+          errorMessage,
+          NUM_SPACES = 2;
+
+      config.rules = [
+        config.rules[1],
+        config.rules[2],
+        config.rules[0]
+      ];
+      errorMessage = 'Invalid configuration:\n' +
+        '  rules are not sorted; expected: ' +
+        JSON.stringify(helpers.baseConfig().rules, null, NUM_SPACES)
+          .replace(/\n/g, '\n  ');
+
+      expect(function() { newConfig(config); }).to.throw(errorMessage);
+      expect(logHelper.messages).to.eql([
+        scriptName + ': ' + errorMessage
+      ]);
+    });
   });
 });

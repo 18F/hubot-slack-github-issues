@@ -43,7 +43,7 @@ describe('Middleware', function() {
   describe('findMatchingRule', function() {
     it('should find the rule matching the message', function() {
       var message = helpers.reactionAddedMessage().rawMessage,
-          expected = config.rules[config.rules.length - 1],
+          expected = config.rules[1],
           result = middleware.findMatchingRule(message);
 
       result.reactionName.should.equal(expected.reactionName);

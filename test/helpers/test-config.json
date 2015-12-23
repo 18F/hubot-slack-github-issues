@@ -11,13 +11,13 @@
     },
 
     {
-      "reactionName": "smiley",
-      "githubRepository": "hubot-slack-github-issues"
+      "reactionName": "evergreen_tree",
+      "githubRepository": "handbook"
     },
 
     {
-      "reactionName": "evergreen_tree",
-      "githubRepository": "handbook"
+      "reactionName": "smiley",
+      "githubRepository": "hubot-slack-github-issues"
     }
   ]
 }
