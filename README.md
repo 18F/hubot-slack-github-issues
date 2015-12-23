@@ -155,6 +155,11 @@ abort if they are not met:
   same `reactionName`, so that more specific rules are matched first
 - `githubRepository` in lexicographic order
 
+The script will also abort under the following conditions:
+
+- More than one rule for the same `reactionName` shares the same
+  `githubRepository` value
+
 ### Environment variables
 
 The following environment variables must also be set:
