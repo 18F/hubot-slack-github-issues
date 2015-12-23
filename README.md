@@ -120,6 +120,13 @@ After making changes, run `npm run-script lint` and `npm test` frequently. Add
 new tests in [the `test` directory](./test/) for any new functionality, or to
 reproduce any bugs you intend to fix.
 
+To run a subset of the tests, use the following syntax, replacing `'Config'`
+with any string matching the tests you wish to run:
+
+```sh
+$ npm test -- --grep 'Config'
+```
+
 If you'd like to contribute to this repository, please follow our
 [CONTRIBUTING guidelines](./CONTRIBUTING.md).
 
