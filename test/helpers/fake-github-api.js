@@ -17,7 +17,7 @@ function FakeGitHubApi(urlOnSuccess, msgOnError, expectedParams) {
             'actual:   ' + actualString
           ].join('\n  ')));
       } else if (urlOnSuccess) {
-        done(null, { url: urlOnSuccess });
+        done(null, { 'html_url': urlOnSuccess });
       } else {
         done(new Error(msgOnError));
       }
