@@ -124,15 +124,22 @@ describe('Config', function() {
   });
 
   describe('checkForMisconfiguredRules', function() {
-    it('should detect when rules are not sorted', function() {
+    it('should detect when rules are not sorted by reactionName', function() {
       var config = helpers.baseConfig(),
           errorMessage,
           NUM_SPACES = 2;
 
       config.rules = [
-        config.rules[1],
-        config.rules[2],
-        config.rules[0]
+        { reactionName: 'smiley',
+          githubRepository: 'hubot-slack-github-issues'
+        },
+        { reactionName: 'evergreen_tree',
+          githubRepository: 'hub',
+          channelNames: ['hub']
+        },
+        { reactionName: 'evergreen_tree',
+          githubRepository: 'handbook',
+        }
       ];
       errorMessage = 'Invalid configuration:\n' +
         '  rules are not sorted; expected: ' +
@@ -142,6 +149,71 @@ describe('Config', function() {
       expect(function() { newConfig(config); }).to.throw(errorMessage);
       expect(logHelper.messages).to.eql([
         scriptName + ': ' + errorMessage
+      ]);
+    });
+
+    it('should detect when rules are not sorted by channelNames', function() {
+      var config = helpers.baseConfig(),
+          errorMessage,
+          NUM_SPACES = 2;
+
+      config.rules = [
+        { reactionName: 'evergreen_tree',
+          githubRepository: 'handbook',
+        },
+        { reactionName: 'evergreen_tree',
+          githubRepository: 'hub',
+          channelNames: ['hub']
+        },
+        { reactionName: 'smiley',
+          githubRepository: 'hubot-slack-github-issues'
+        }
+      ];
+      errorMessage = 'Invalid configuration:\n' +
+        '  rules are not sorted; expected: ' +
+        JSON.stringify(helpers.baseConfig().rules, null, NUM_SPACES)
+          .replace(/\n/g, '\n  ');
+
+      expect(function() { newConfig(config); }).to.throw(errorMessage);
+      expect(logHelper.messages).to.eql([
+        [scriptName + ': ' + errorMessage]
+      ]);
+    });
+
+    it('should detect when rules are not sorted by repository', function() {
+      var correctConfig = helpers.baseConfig(),
+          errorConfig = helpers.baseConfig(),
+          errorMessage,
+          NUM_SPACES = 2;
+
+      correctConfig.rules = [
+        { reactionName: 'evergreen_tree',
+          githubRepository: 'handbook',
+          channelNames: ['handbook']
+        },
+        { reactionName: 'evergreen_tree',
+          githubRepository: 'hub',
+          channelNames: ['hub']
+        },
+        { reactionName: 'smiley',
+          githubRepository: 'hubot-slack-github-issues'
+        }
+      ];
+
+      errorConfig.rules = [
+        correctConfig.rules[1],
+        correctConfig.rules[0],
+        correctConfig.rules[2],
+      ];
+
+      errorMessage = 'Invalid configuration:\n' +
+        '  rules are not sorted; expected: ' +
+        JSON.stringify(correctConfig.rules, null, NUM_SPACES)
+          .replace(/\n/g, '\n  ');
+
+      expect(function() { newConfig(errorConfig); }).to.throw(errorMessage);
+      expect(logHelper.messages).to.eql([
+        [scriptName + ': ' + errorMessage]
       ]);
     });
 
