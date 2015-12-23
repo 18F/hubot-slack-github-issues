@@ -63,16 +63,16 @@ custom versions.
 
 You'll need to create a JSON file conforming to the following schema:
 
-* *githubUser*: GitHub organization or username owning all repositories
-* *githubTimeout*: GitHub API timeout limit in milliseconds
-* *slackTimeout*: Slack API timeout limit in milliseconds
-* *successReaction* emoji used to indicate an issue was successfully filed
-* *rules*: defines each condition that will result in a new GitHub issue
-  * *reactionName* name of the reaction emoji triggering the rule
-  * *githubRepository*: GitHub repository belonging to *githubUser* to which
+* **githubUser**: GitHub organization or username owning all repositories
+* **githubTimeout**: GitHub API timeout limit in milliseconds
+* **slackTimeout**: Slack API timeout limit in milliseconds
+* **successReaction**: emoji used to indicate an issue was successfully filed
+* **rules**: defines each condition that will result in a new GitHub issue
+  * **reactionName**: name of the reaction emoji triggering the rule
+  * **githubRepository**: GitHub repository belonging to *githubUser* to which
     to post issues
-  * *channelNames (optional)*: name of the Slack channels triggering the rule;
-    leave undefined to match messages in _any_ Slack channel
+  * **channelNames (optional)**: name of the Slack channels triggering the
+    rule; leave undefined to match messages in _any_ Slack channel
 
 For example:
 
