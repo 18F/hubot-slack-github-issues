@@ -33,7 +33,7 @@ describe('Rule', function() {
     var rule = new Rule(helpers.configRule()),
         message = helpers.reactionAddedMessage().rawMessage,
         client = new FakeSlackClientImpl('not-the-hub');
-    delete rule.channelName;
+    delete rule.channelNames;
     expect(rule.match(message, new SlackClient(client, config))).to.be.true;
     expect(client.channelId).to.be.undefined;
   });

@@ -30,7 +30,7 @@ exports = module.exports = {
     return {
       reactionName: exports.REACTION,
       githubRepository: 'hubot-slack-github-issues',
-      channelName: 'hub'
+      channelNames: ['hub']
     };
   },
 

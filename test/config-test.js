@@ -49,7 +49,7 @@ describe('Config', function() {
     configWithChannelRule.rules.push({
       'reactionName': 'smiley',
       'githubRepository': '18F/hubot-slack-github-issues',
-      'channelName': 'hub'
+      'channelNames': ['hub']
     });
     config = newConfig(configWithChannelRule);
     expect(JSON.stringify(config)).to.eql(
@@ -100,7 +100,7 @@ describe('Config', function() {
     config.rules.push({
       'reactionName': 'smiley',
       'githubRepository': '18F/hubot-slack-github-issues',
-      'channelName': 'hub',
+      'channelNames': ['hub'],
       'quux': {}
     });
 
