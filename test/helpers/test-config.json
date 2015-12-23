@@ -7,7 +7,7 @@
     {
       "reactionName": "evergreen_tree",
       "githubRepository": "hub",
-      "channelName": "hub"
+      "channelNames": ["hub"]
     },
 
     {

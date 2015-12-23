@@ -35,7 +35,7 @@ You'll need to create a JSON file conforming to the following schema:
   * *reactionName* name of the reaction emoji triggering the rule
   * *githubRepository*: GitHub repository belonging to *githubUser* to which
     to post issues
-  * *channelName (optional)*: name of the Slack channel triggering the rule;
+  * *channelNames (optional)*: name of the Slack channels triggering the rule;
     leave undefined to match messages in _any_ Slack channel
 
 For example:
