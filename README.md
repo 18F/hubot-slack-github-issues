@@ -147,20 +147,21 @@ repository.
 
 ### Configuration constraints
 
-The `rules:` must be sorted according to the following rules; the script will
-abort if they are not met:
+To keep the configuration file readable, `rules:` must be sorted according to
+the following ordering rules. The script will abort otherwise:
 
 - `reactionName` in lexicographic order
 - rules that do not define `channelNames` must follow any other rules for the
   same `reactionName`, so that more specific rules are matched first
 - `githubRepository` in lexicographic order
 
-The script will also abort under the following conditions:
+To ensure that rules behave as expected, the script also enforces
+following conditions for each set of rules pertaining to a `reactionName`:
 
-- More than one rule for the same `reactionName` shares the same
-  `githubRepository` value
-- An element of `channelNames` appears in more than one rule for the same
-  `reactionName`
+- Each `githubRepository` value is unique
+- Each value in `channelNames` is unique across every rule
+- Only the last rule can leave `channelNames` undefined, as this rule will
+  match messages in every channel not matched by other rules
 
 ### Environment variables
 

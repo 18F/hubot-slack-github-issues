@@ -182,5 +182,21 @@ describe('Config', function() {
         [scriptName + ': ' + errorMessage]
       ]);
     });
+
+    it('should detect multiple all-channel rules for reaction', function() {
+      var config = helpers.baseConfig(),
+          errorMessage;
+
+      config.rules[0].githubRepository = 'handbook';
+      delete config.rules[0].channelNames;
+      config.rules[1].githubRepository = 'hub';
+
+      errorMessage = 'Invalid configuration:\n' +
+        '  multiple all-channel rules defined for evergreen_tree';
+      expect(function() { newConfig(config); }).to.throw(errorMessage);
+      expect(logHelper.messages).to.eql([
+        [scriptName + ': ' + errorMessage]
+      ]);
+    });
   });
 });
