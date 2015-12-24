@@ -114,11 +114,13 @@ $ cd hubot-slack-github-issues
 $ npm install
 $ npm run-script lint
 $ npm test
+$ test/hubot-smoke-test.bash
 ```
 
 After making changes, run `npm run-script lint` and `npm test` frequently. Add
 new tests in [the `test` directory](./test/) for any new functionality, or to
-reproduce any bugs you intend to fix.
+reproduce any bugs you intend to fix. Run `test/hubot-smoke-test.bash`
+occasionally to ensure that the script can be loaded by Hubot.
 
 To run a subset of the tests, use the following syntax, replacing `'Config'`
 with any string matching the tests you wish to run:
