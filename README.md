@@ -29,19 +29,35 @@ appeared.
 
 ## Installation
 
+1. Ensure that [Node.js](https://nodejs.org/) is installed on your system.
+   This plugin requires version 4.2 or greater or version 5 or greater. You
+   may wish to use a version manager such as
+   [nvm](https://github.com/creationix/nvm) to manage different Node.js
+   versions.
+
+1. [Create your own Hubot instance](https://hubot.github.com/docs/) if you
+   haven't already done so. Note that you do _not_ need to install Redis to
+   use this script.
+
 1. In your Hubot repository, run:
-  ```bash
-  $ npm install '18f/hubot-slack#3.4.2-handle-reaction-added' \
-      hubot-slack-github-issues --save
-  ```
+   ```bash
+   $ npm install '18f/hubot-slack#3.4.2-handle-reaction-added' \
+       hubot-slack-github-issues --save
+   ```
 
 1. Include the plugin in your `external-scripts.json`.
+   ```json
+   [
+     "hubot-slack-github-issues"
+   ]
+   ```
+1. [Set up Slack and GitHub users](#setting-up-slack-and-github-users).
 
-  ```json
-  [
-    "hubot-slack-github-issues"
-  ]
-  ```
+1. [Configure the plugin](#configuration).
+
+1. Set the [environment variables](#environment-variables).
+
+1. Run `bin/hubot` or otherwise deploy to your preferred environment.
 
 ### Note regarding near-term dependencies
 
@@ -58,6 +74,20 @@ event](https://api.slack.com/events/reaction_added) patched in.
 When those official packages have been updated to include `reaction_added`
 support, this plugin will be updated to use those packages instead of the
 custom versions.
+
+### Setting up Slack and GitHub users
+
+If you haven't done so already, create a [Slack bot
+user](https://api.slack.com/bot-users). Use the bot's API token as the value
+for the [`HUBOT_SLACK_TOKEN` environment variable](#environment-variables).
+
+Then [create a GitHub
+account](https://help.github.com/articles/signing-up-for-a-new-github-account/)
+dedicated to filing issues on behalf of the script, such as
+[18f-bot](https://github.com/18f-bot). Create a [personal access
+token](https://help.github.com/articles/creating-an-access-token-for-command-line-use/)
+for this user and use it as the value for the [`HUBOT_GITHUB_TOKEN`
+environment variable](#environment-variables).
 
 ## Configuration
 
@@ -89,11 +119,12 @@ For example:
 }
 ```
 
+### Environment variables
+
 The following environment variables must also be set:
 
-* `HUBOT_GITHUB_TOKEN`: GitHub API token
-* `HUBOT_SLACK_TOKEN`: Slack API token (also needed by
-  [`hubot-slack`](https://www.npmjs.com/package/hubot-slack))
+* `HUBOT_GITHUB_TOKEN`: personal API token for the GitHub user
+* `HUBOT_SLACK_TOKEN`: API token for the Slack bot user
 
 The following environment variables are optional:
 * `HUBOT_SLACK_GITHUB_ISSUES_CONFIG_PATH`: the path to the configuration file;
@@ -101,10 +132,9 @@ The following environment variables are optional:
 
 ## Developing
 
-Ensure that [Node.js](https://nodejs.org/) is installed on your system. This
-plugin requires version 4.2 or greater or version 5 or greater. You
-may wish to use a version manager such as
-[nvm](https://github.com/creationix/nvm) to manage different Node.js versions.
+Install Node.js per the [installation instructions](#installation). You do not
+need to create a Hubot instance, nor do you need to create Slack or GitHub
+users, until you intend to deploy the script.
 
 After cloning this repository, do the following to ensure your installation is
 in a good state:
