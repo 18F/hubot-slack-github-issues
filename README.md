@@ -119,6 +119,10 @@ For example:
 }
 ```
 
+For a more complete example, see
+[`test/helpers/test-config.json`](./test/helpers/test-config.json) in this
+repository.
+
 ### Environment variables
 
 The following environment variables must also be set:
