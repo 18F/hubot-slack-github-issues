@@ -82,10 +82,20 @@ for the [`HUBOT_SLACK_TOKEN` environment variable](#environment-variables).
 Then [create a GitHub
 account](https://help.github.com/articles/signing-up-for-a-new-github-account/)
 dedicated to filing issues on behalf of the script, such as
-[18f-bot](https://github.com/18f-bot). Create a [personal access
+[18f-bot](https://github.com/18f-bot). If desired, add this account to your GitHub
+organization. Create a [personal access
 token](https://help.github.com/articles/creating-an-access-token-for-command-line-use/)
 for this user and use it as the value for the [`HUBOT_GITHUB_TOKEN`
 environment variable](#environment-variables).
+
+**If you wish to use this script with private GitHub repositories**, make sure
+to [add your GitHub user as a
+collaborator](https://help.github.com/articles/adding-outside-collaborators-to-repositories-in-your-organization/)
+with [read
+access](https://help.github.com/articles/repository-permission-levels-for-an-organization/)
+to each repository. Alternatively, you can [add your GitHub user to a
+team](https://help.github.com/articles/adding-organization-members-to-a-team/)
+with access to private repositories instead.
 
 ## Configuration
 
