@@ -16,7 +16,7 @@ It works by registering [receive middleware](https://hubot.github.com/docs/scrip
 that listens for [`reaction_added` events](https://api.slack.com/events/reaction_added).
 When team members add an emoji reaction to a message, the resulting event is
 matched against a set of [configuration rules](#configuration).
-If a match is found, the plugin will [retrieve the list of
+If the event matches a rule, the plugin will [retrieve the list of
 reactions](https://api.slack.com/methods/reactions.get) for the message.
 
 Provided that the message has not already been processed, the plugin will
@@ -24,16 +24,14 @@ Provided that the message has not already been processed, the plugin will
 message based on the the rule. The issue will contain a link to the message.
 At this point, the plugin will [add a reaction to the
 message](https://api.slack.com/methods/reactions.add) with an emoji indicating
-success, and the issue URL is posted to the channel in which the message
-appeared.
+success, and posts the issue URL to the channel in which the message appeared.
 
 ## Installation
 
-1. Ensure that [Node.js](https://nodejs.org/) is installed on your system.
-   This plugin requires version 4.2 or greater or version 5 or greater. You
-   may wish to use a version manager such as
-   [nvm](https://github.com/creationix/nvm) to manage different Node.js
-   versions.
+1. Install [Node.js](https://nodejs.org/) on your system. This plugin requires
+   version 4.2 or greater or version 5 or greater. You may wish to use a
+   version manager such as [nvm](https://github.com/creationix/nvm) to manage
+   different Node.js versions.
 
 1. [Create your own Hubot instance](https://hubot.github.com/docs/) if you
    haven't already done so. Note that you do _not_ need to install Redis to
