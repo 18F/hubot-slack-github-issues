@@ -18,12 +18,11 @@ describe('Config', function() {
   var logHelper, newConfig;
 
   before(function() {
-    process.env.HUBOT_SLACK_GITHUB_ISSUES_CONFIG_PATH = path.join(
-      __dirname, 'helpers', 'test-config.json');
     logHelper = new LogHelper();
+    delete process.env.HUBOT_SLACK_GITHUB_ISSUES_CONFIG_PATH;
   });
 
-  after(function() {
+  afterEach(function() {
     delete process.env.HUBOT_SLACK_GITHUB_ISSUES_CONFIG_PATH;
   });
 
@@ -36,7 +35,7 @@ describe('Config', function() {
     }
   };
 
-  it('should validate the base config', function() {
+  it('should validate a valid configuration', function() {
     var baseConfig = helpers.baseConfig(),
         config = new Config(baseConfig);
     expect(JSON.stringify(config)).to.equal(JSON.stringify(baseConfig));
@@ -50,16 +49,16 @@ describe('Config', function() {
           'missing successReaction',
           'missing rules'
         ],
-        errorMsg = 'Invalid configuration:\n  ' + errors.join('\n  ');
+        errorMessage = 'Invalid configuration:\n  ' + errors.join('\n  ');
 
-    expect(function() { newConfig({}); }).to.throw(errorMsg);
-    expect(logHelper.messages).to.eql([scriptName + ': ' + errorMsg]);
+    expect(function() { newConfig({}); }).to.throw(Error, errorMessage);
+    expect(logHelper.messages).to.eql([scriptName + ': ' + errorMessage]);
   });
 
   it('should raise errors for missing required rules fields', function() {
     var config = helpers.baseConfig(),
         errors,
-        errorMsg;
+        errorMessage;
 
     delete config.rules[0].reactionName;
     delete config.rules[0].githubRepository;
@@ -68,16 +67,16 @@ describe('Config', function() {
       'rule 0 missing reactionName',
       'rule 0 missing githubRepository'
     ];
-    errorMsg = 'Invalid configuration:\n  ' + errors.join('\n  ');
+    errorMessage = 'Invalid configuration:\n  ' + errors.join('\n  ');
 
-    expect(function() { newConfig(config); }).to.throw(errorMsg);
-    expect(logHelper.messages).to.eql([scriptName + ': ' + errorMsg]);
+    expect(function() { newConfig(config); }).to.throw(Error, errorMessage);
+    expect(logHelper.messages).to.eql([scriptName + ': ' + errorMessage]);
   });
 
   it('should raise errors for unknown properties', function() {
     var config = helpers.baseConfig(),
         errors,
-        errorMsg;
+        errorMessage;
 
     config.foo = {};
     config.bar = {};
@@ -95,15 +94,20 @@ describe('Config', function() {
       'rule 0 contains unknown property baz',
       'rule 3 contains unknown property quux',
     ];
-    errorMsg = 'Invalid configuration:\n  ' + errors.join('\n  ');
+    errorMessage = 'Invalid configuration:\n  ' + errors.join('\n  ');
 
-    expect(function() { newConfig(config); }).to.throw(errorMsg);
-    expect(logHelper.messages).to.eql([scriptName + ': ' + errorMsg]);
+    expect(function() { newConfig(config); }).to.throw(Error, errorMessage);
+    expect(logHelper.messages).to.eql([scriptName + ': ' + errorMessage]);
   });
 
   it('should load from HUBOT_SLACK_GITHUB_ISSUES_CONFIG_PATH', function() {
     var baseConfig = helpers.baseConfig(),
-        config = newConfig();
+        config;
+
+    process.env.HUBOT_SLACK_GITHUB_ISSUES_CONFIG_PATH = path.join(
+      __dirname, 'helpers', 'test-config.json');
+    config = newConfig();
+
     expect(JSON.stringify(config)).to.eql(JSON.stringify(baseConfig));
     expect(logHelper.messages).to.eql([
       scriptName + ': loading config from ' +
@@ -115,7 +119,6 @@ describe('Config', function() {
     var defaultConfig = require('../config/slack-github-issues.json'),
         config;
 
-    delete process.env.HUBOT_SLACK_GITHUB_ISSUES_CONFIG_PATH;
     config = newConfig();
     expect(JSON.stringify(config)).to.eql(JSON.stringify(defaultConfig));
     expect(logHelper.messages).to.eql([
@@ -176,7 +179,7 @@ describe('Config', function() {
 
       expect(function() { newConfig(config); }).to.throw(errorMessage);
       expect(logHelper.messages).to.eql([
-        [scriptName + ': ' + errorMessage]
+        scriptName + ': ' + errorMessage
       ]);
     });
 
@@ -213,7 +216,7 @@ describe('Config', function() {
 
       expect(function() { newConfig(errorConfig); }).to.throw(errorMessage);
       expect(logHelper.messages).to.eql([
-        [scriptName + ': ' + errorMessage]
+        scriptName + ': ' + errorMessage
       ]);
     });
 
@@ -234,7 +237,7 @@ describe('Config', function() {
         '    hub';
       expect(function() { newConfig(config); }).to.throw(errorMessage);
       expect(logHelper.messages).to.eql([
-        [scriptName + ': ' + errorMessage]
+        scriptName + ': ' + errorMessage
       ]);
     });
 
@@ -250,7 +253,7 @@ describe('Config', function() {
         '    handbook';
       expect(function() { newConfig(config); }).to.throw(errorMessage);
       expect(logHelper.messages).to.eql([
-        [scriptName + ': ' + errorMessage]
+        scriptName + ': ' + errorMessage
       ]);
     });
 
@@ -272,7 +275,7 @@ describe('Config', function() {
         '    hub';
       expect(function() { newConfig(config); }).to.throw(errorMessage);
       expect(logHelper.messages).to.eql([
-        [scriptName + ': ' + errorMessage]
+        scriptName + ': ' + errorMessage
       ]);
     });
 
@@ -288,7 +291,7 @@ describe('Config', function() {
         '  multiple all-channel rules defined for evergreen_tree';
       expect(function() { newConfig(config); }).to.throw(errorMessage);
       expect(logHelper.messages).to.eql([
-        [scriptName + ': ' + errorMessage]
+        scriptName + ': ' + errorMessage
       ]);
     });
   });
