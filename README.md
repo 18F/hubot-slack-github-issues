@@ -13,8 +13,9 @@ to act upon important parts of conversations more easily.
 <figure>
 <img src='./example.png' alt='Usage example' /><br/>
 <figcaption>Example of filing an issue by reacting to a message with an
-evergreen_tree emoji, then having the plugin mark the message with a
-heavy_check_mark emoji and post the issue URL to the channel</figcaption>
+evergreen_tree emoji. After successfully filing an issue, the plugin marked
+the message with a heavy_check_mark emoji and posted the issue URL to the
+channel.</figcaption>
 </figure>
 
 ## How it works
@@ -26,12 +27,14 @@ matched against a set of [configuration rules](#configuration).
 If the event matches a rule, the plugin will [retrieve the list of
 reactions](https://api.slack.com/methods/reactions.get) for the message.
 
-Provided that the message has not already been processed, the plugin will
-[create a GitHub issue](https://developer.github.com/v3/issues/#create-an-issue) for the
-message based on the the rule. The issue will contain a link to the message.
-At this point, the plugin will [add a reaction to the
+If the message doesn't have an emoji reaction indicating an issue was already
+filed, the plugin will [create a GitHub
+issue](https://developer.github.com/v3/issues/#create-an-issue) for the
+message. The issue will contain a link to the message. At this point, the
+plugin will [add a reaction to the
 message](https://api.slack.com/methods/reactions.add) with an emoji indicating
-success, and posts the issue URL to the channel in which the message appeared.
+success. Finally, it will post the issue URL to the channel in which the
+message appeared.
 
 ## Installation
 
@@ -95,18 +98,16 @@ token](https://help.github.com/articles/creating-an-access-token-for-command-lin
 for this user and use it as the value for the [`HUBOT_GITHUB_TOKEN`
 environment variable](#environment-variables).
 
-**If you wish to use this script with private GitHub repositories**, make sure
-to [add your GitHub user as a
-collaborator](https://help.github.com/articles/adding-outside-collaborators-to-repositories-in-your-organization/)
-with [read
-access](https://help.github.com/articles/repository-permission-levels-for-an-organization/)
+**If you wish to use this script with private GitHub repositories**, [add your
+GitHub user as a collaborator](https://help.github.com/articles/adding-outside-collaborators-to-repositories-in-your-organization/)
+with [read access](https://help.github.com/articles/repository-permission-levels-for-an-organization/)
 to each repository. Alternatively, you can [add your GitHub user to a
 team](https://help.github.com/articles/adding-organization-members-to-a-team/)
 with access to private repositories instead.
 
 ## Configuration
 
-You'll need to create a JSON file conforming to the following schema:
+Create a JSON configuration file conforming to the following schema:
 
 * **githubUser**: GitHub organization or username owning all repositories
 * **githubTimeout**: GitHub API timeout limit in milliseconds
@@ -134,6 +135,10 @@ For example:
 }
 ```
 
+This file can reside at the default path of `config/slack-github-issues.json`
+within your Hubot installation, or can be specified via the
+`HUBOT_SLACK_GITHUB_ISSUES_CONFIG_PATH` environment variable.
+
 For a more complete example, see
 [`test/helpers/test-config.json`](./test/helpers/test-config.json) in this
 repository.
@@ -151,7 +156,7 @@ The following environment variables are optional:
 
 ## Developing
 
-Install Node.js per the [installation instructions](#installation). You do not
+Install Node.js per the [installation instructions](#installation). You don't
 need to create a Hubot instance, nor do you need to create Slack or GitHub
 users, until you intend to deploy the script.
 
