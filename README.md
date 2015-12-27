@@ -10,6 +10,13 @@ This plugin is for use by organizations that use Slack to communicate and who
 use GitHub to track issues. The goal is to enable team members to document or
 to act upon important parts of conversations more easily.
 
+<figure>
+<img src='./example.png' alt='Usage example' /><br/>
+<figcaption>Example of filing an issue by reacting to a message with an
+evergreen_tree emoji, then having the plugin mark the message with a
+heavy_check_mark emoji and post the issue URL to the channel</figcaption>
+</figure>
+
 ## How it works
 
 It works by registering [receive middleware](https://hubot.github.com/docs/scripting/#receive-middleware)
