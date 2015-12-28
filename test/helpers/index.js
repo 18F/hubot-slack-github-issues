@@ -91,7 +91,7 @@ exports = module.exports = {
   },
 
   matchingRuleLogMessage: function() {
-    var matchingRule = exports.baseConfig().rules[2];
+    var matchingRule = exports.baseConfig().rules[1];
     return exports.logMessage('matches rule: ' + JSON.stringify(matchingRule));
   },
 

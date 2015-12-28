@@ -126,6 +126,8 @@ For example:
 {
   "githubUser": "18F",
   "githubTimeout": 5000,
+  "slackTimeout": 5000,
+  "successReaction": "heavy_check_mark",
   "rules": [
     {
       "reactionName": "evergreen_tree",
@@ -142,6 +144,25 @@ within your Hubot installation, or can be specified via the
 For a more complete example, see
 [`test/helpers/test-config.json`](./test/helpers/test-config.json) in this
 repository.
+
+### Configuration constraints
+
+To keep the configuration file readable, `rules:` must be sorted according to
+the following ordering rules. The script will abort otherwise:
+
+- `reactionName` in lexicographic order
+- rules that do not define `channelNames` must follow any other rules for the
+  same `reactionName`, so that more specific rules are matched first
+- `githubRepository` in lexicographic order
+
+To ensure that rules behave as expected, the script also enforces
+following conditions for each set of rules pertaining to a `reactionName`:
+
+- Each rule's `channelNames` list is sorted
+- Each `githubRepository` value is unique
+- Each value in `channelNames` is unique across every rule
+- Only the last rule can leave `channelNames` undefined, as this rule will
+  match messages in every channel not matched by other rules
 
 ### Environment variables
 
