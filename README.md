@@ -34,7 +34,7 @@ message appeared.
 
 ## Installation
 
-Here are instructions for installing this plugin and putting it into use. If you'd like to set up a local copy for development without deploying the plugin, skip to the instructions at [Developing](#developing) (you don't need to create a Hubot instance, a Slack user, or a GitHub user until you intend to deploy the script).
+Here are instructions for installing this plugin and putting it into use. If you'd like to set up a local copy for development without deploying the plugin, follow step #1 and then skip to the instructions at [Developing](#developing) (you don't need to create a Hubot instance, a Slack bot user, a GitHub user, a configuration file, or environment variables until you intend to deploy the script).
 
 1. Install [Node.js](https://nodejs.org/) on your system. This plugin requires
    version 4.2 or greater or version 5 or greater. You may wish to first install a
@@ -62,7 +62,7 @@ event](https://api.slack.com/events/reaction_added) patched in. When those offic
 support, this plugin will be updated to use those packages instead of the
 custom versions.
 
-1. Include the plugin in your `external-scripts.json`.
+1. Include the plugin in `external-scripts.json` in your Hubot repository:
    ```json
    [
      "hubot-slack-github-issues"
@@ -90,7 +90,7 @@ to each repository. Alternatively, you can [add your GitHub user to a
 team](https://help.github.com/articles/adding-organization-members-to-a-team/)
 with access to private repositories instead.
 
-1. Configure the plugin by [creating a JSON configuration file with these items](#configuration) and setting the [environment variables](#environment-variables).
+1. Configure the plugin by [creating a JSON configuration file with these items](#configuration) and [setting these environment variables](#environment-variables).
 
 1. Run `bin/hubot` or otherwise deploy to your preferred environment.
 
@@ -166,9 +166,8 @@ The following environment variables are optional:
 
 ## Developing
 
-Install Node.js per the [installation instructions](#installation). You don't
-need to create a Hubot instance, nor do you need to create Slack or GitHub
-users, until you intend to deploy the script.
+Install Node.js per the [installation instructions (step #1)](#installation). You don't
+need to create a Hubot instance, a Slack bot user, a GitHub user, a configuration file, or environment variables until you intend to deploy the script.
 
 After cloning this repository, do the following to ensure your installation is
 in a good state:
