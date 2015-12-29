@@ -2,13 +2,9 @@
 
 [![Build Status](https://travis-ci.org/18F/hubot-slack-github-issues.svg?branch=master)](https://travis-ci.org/18F/hubot-slack-github-issues)
 
-[Hubot](https://hubot.github.com/) plugin that creates
-[GitHub](https://github.com/) issues from [Slack](https://slack.com/) messages
-that receive a specific emoji reaction.
+When a [Slack](https://slack.com/) chat message receives a specific emoji reaction, this [Hubot](https://hubot.github.com/) plugin creates a [GitHub](https://github.com/) issue with a link to that message.
 
-This plugin is for use by organizations that use Slack to communicate and who
-use GitHub to track issues. The goal is to enable team members to document or
-to act upon important parts of conversations more easily.
+This plugin is for teams who use Slack to communicate and GitHub to track issues. It provides an easy way to file an issue (just add a specific emoji to a message), which helps team members quickly document or act upon important parts of conversations. For example, 18F [tags Slack messages with an evergreen tree](https://18f.gsa.gov/2015/12/08/using-emoji-for-knowledge-sharing/) when we notice future new hires should see that information.
 
 <figure>
 <img src='./example.png' alt='Usage example' /><br/>
@@ -20,10 +16,10 @@ channel.</figcaption>
 
 ## How it works
 
-It works by registering [receive middleware](https://hubot.github.com/docs/scripting/#receive-middleware)
-that listens for [`reaction_added` events](https://api.slack.com/events/reaction_added).
+This plugin works by registering [Hubot receive middleware](https://hubot.github.com/docs/scripting/#receive-middleware)
+that listens for [Slack `reaction_added` events](https://api.slack.com/events/reaction_added).
 When team members add an emoji reaction to a message, the resulting event is
-matched against a set of [configuration rules](#configuration).
+matched against a set of [plugin configuration rules](#configuration).
 If the event matches a rule, the plugin will [retrieve the list of
 reactions](https://api.slack.com/methods/reactions.get) for the message.
 
