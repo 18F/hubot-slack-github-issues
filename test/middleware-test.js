@@ -149,7 +149,7 @@ describe('Middleware', function() {
         return;
       }
 
-      result.should.be.fulfilled.then(function() {
+      result.should.become(helpers.ISSUE_URL).then(function() {
         logHelper.restoreLog();
         fileNewIssue.calledOnce.should.be.true;
         fileNewIssue.firstCall.args.should.eql(expectedFileNewIssueArgs);
@@ -167,6 +167,8 @@ describe('Middleware', function() {
     });
 
     it('should parse a message but fail to file an issue', function(done) {
+      var errorMessage = helpers.failureMessage('test failure');
+
       fileNewIssue.returns(Promise.reject(new Error('test failure')));
       result = doExecute(done);
 
@@ -174,13 +176,12 @@ describe('Middleware', function() {
         return;
       }
 
-      result.should.be.fulfilled.then(function() {
+      result.should.be.rejectedWith(Error, errorMessage).then(function() {
         logHelper.restoreLog();
         fileNewIssue.calledOnce.should.be.true;
         fileNewIssue.firstCall.args.should.eql(expectedFileNewIssueArgs);
         reply.calledOnce.should.be.true;
-        reply.firstCall.args.should.eql(
-          ['failed to create a GitHub issue in 18F/handbook: test failure']);
+        reply.firstCall.args.should.eql([errorMessage]);
         next.calledOnce.should.be.true;
         next.calledWith(hubotDone).should.be.true;
         hubotDone.called.should.be.false;
@@ -194,7 +195,7 @@ describe('Middleware', function() {
 
     it('should not file another issue for the same message when ' +
       'one is in progress', function(done) {
-      fileNewIssue.returns(Promise.resolve(metadata.url));
+      fileNewIssue.returns(Promise.resolve(helpers.ISSUE_URL));
       result = doExecute(done);
 
       if (!result) {
@@ -207,7 +208,7 @@ describe('Middleware', function() {
           'issue being filed when one was in progress'));
       }
 
-      return result.should.be.fulfilled.then(function() {
+      return result.should.become(helpers.ISSUE_URL).then(function() {
         var inProgressLogMessage;
 
         logHelper.restoreLog();
