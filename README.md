@@ -34,10 +34,11 @@ message appeared.
 
 ## Installation
 
+Here are instructions for installing this plugin and putting it into use. If you'd like to set up a local copy for development without deploying the plugin, skip to the instructions at [Developing](#developing) (you don't need to create a Hubot instance, a Slack user, or a GitHub user until you intend to deploy the script).
+
 1. Install [Node.js](https://nodejs.org/) on your system. This plugin requires
-   version 4.2 or greater or version 5 or greater. You may wish to use a
-   version manager such as [nvm](https://github.com/creationix/nvm) to manage
-   different Node.js versions.
+   version 4.2 or greater or version 5 or greater. You may wish to first install a
+   version manager such as [nvm](https://github.com/creationix/nvm) to manage and install different Node.js versions.
 
 1. [Create your own Hubot instance](https://hubot.github.com/docs/) if you
    haven't already done so. Note that you do _not_ need to install Redis to
@@ -48,24 +49,8 @@ message appeared.
    $ npm install '18f/hubot-slack#3.4.2-handle-reaction-added' \
        hubot-slack-github-issues --save
    ```
-
-1. Include the plugin in your `external-scripts.json`.
-   ```json
-   [
-     "hubot-slack-github-issues"
-   ]
-   ```
-1. [Set up Slack and GitHub users](#setting-up-slack-and-github-users).
-
-1. [Configure the plugin](#configuration).
-
-1. Set the [environment variables](#environment-variables).
-
-1. Run `bin/hubot` or otherwise deploy to your preferred environment.
-
-### Note regarding near-term dependencies
-
-This plugin depends upon
+   
+   **Note:** This plugin depends upon
 [18F/hubot-slack#3.4.2-handle-reaction-added](https://github.com/18F/hubot-slack/tree/3.4.2-handle-reaction-added),
 which in turn depends upon
 [18F/node-slack-client#1.5.0-handle-reaction-added](https://github.com/18F/node-slack-client/tree/1.5.0-handle-reaction-added).
@@ -73,19 +58,23 @@ These packages are custom forks of the
 [hubot-slack](https://www.npmjs.com/package/hubot-slack) and 
 [slack-client](https://www.npmjs.com/package/slack-client) packages that have
 had support for the [`reaction_added`
-event](https://api.slack.com/events/reaction_added) patched in.
-
-When those official packages have been updated to include `reaction_added`
+event](https://api.slack.com/events/reaction_added) patched in. When those official packages have been updated to include `reaction_added`
 support, this plugin will be updated to use those packages instead of the
 custom versions.
 
-### Setting up Slack and GitHub users
+1. Include the plugin in your `external-scripts.json`.
+   ```json
+   [
+     "hubot-slack-github-issues"
+   ]
+   ```
+1. Set up Slack and GitHub users:
 
-If you haven't done so already, create a [Slack bot
+   	If you haven't done so already, create a [Slack bot
 user](https://api.slack.com/bot-users). Use the bot's API token as the value
 for the [`HUBOT_SLACK_TOKEN` environment variable](#environment-variables).
 
-Then [create a GitHub
+   	Then [create a GitHub
 account](https://help.github.com/articles/signing-up-for-a-new-github-account/)
 dedicated to filing issues on behalf of the script, such as
 [18f-bot](https://github.com/18f-bot). If desired, add this account to your GitHub
@@ -94,12 +83,16 @@ token](https://help.github.com/articles/creating-an-access-token-for-command-lin
 for this user and use it as the value for the [`HUBOT_GITHUB_TOKEN`
 environment variable](#environment-variables).
 
-**If you wish to use this script with private GitHub repositories**, [add your
+    **If you wish to use this script with private GitHub repositories**, [add your
 GitHub user as a collaborator](https://help.github.com/articles/adding-outside-collaborators-to-repositories-in-your-organization/)
 with [read access](https://help.github.com/articles/repository-permission-levels-for-an-organization/)
 to each repository. Alternatively, you can [add your GitHub user to a
 team](https://help.github.com/articles/adding-organization-members-to-a-team/)
 with access to private repositories instead.
+
+1. Configure the plugin by [creating a JSON configuration file with these items](#configuration) and setting the [environment variables](#environment-variables).
+
+1. Run `bin/hubot` or otherwise deploy to your preferred environment.
 
 ## Configuration
 
@@ -162,7 +155,7 @@ following conditions for each set of rules pertaining to a `reactionName`:
 
 ### Environment variables
 
-The following environment variables must also be set:
+You must also set the following environment variables (how to do that depends on the operating system and shell that you use; [here's an example guide for OS X with the default bash shell](http://osxdaily.com/2015/07/28/set-enviornment-variables-mac-os-x/)):
 
 * `HUBOT_GITHUB_TOKEN`: personal API token for the GitHub user
 * `HUBOT_SLACK_TOKEN`: API token for the Slack bot user
