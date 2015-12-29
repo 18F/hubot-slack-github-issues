@@ -30,7 +30,7 @@ describe('SlackClient', function() {
 
   beforeEach(function() {
     slackApiServer = undefined;
-    payload = { ok: true, message: 'Hello, world!' };
+    payload = helpers.messageWithReactions();
   });
 
   afterEach(function() {

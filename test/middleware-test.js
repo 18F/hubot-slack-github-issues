@@ -22,19 +22,19 @@ chai.use(chaiAsPromised);
 chai.use(chaiThings);
 
 describe('Middleware', function() {
-  var config, slackClientImpl, githubClient, middleware;
+  var config, slackClientImpl, slackClient, githubClient, middleware;
 
   beforeEach(function() {
     config = helpers.baseConfig();
     slackClientImpl = new FakeSlackClientImpl('handbook');
+    slackClient = new SlackClient(slackClientImpl, config);
     githubClient = new GitHubClient(helpers.baseConfig(), {});
-    middleware = new Middleware(
-      config, new SlackClient(slackClientImpl, config), githubClient);
+    middleware = new Middleware(config, slackClient, githubClient);
   });
 
   describe('parseMetadata', function() {
     it('should parse GitHub request metadata from a message', function() {
-      middleware.parseMetadata(helpers.reactionAddedMessage().rawMessage)
+      middleware.parseMetadata(helpers.messageWithReactions())
         .should.eql(helpers.metadata());
       slackClientImpl.channelId.should.equal(helpers.CHANNEL_ID);
     });
@@ -66,14 +66,17 @@ describe('Middleware', function() {
 
     it('should ignore messages that do not match', function() {
       var message = helpers.reactionAddedMessage().rawMessage;
-      message.name = 'sad-face';
+      message.reaction = 'sad-face';
       expect(middleware.findMatchingRule(message)).to.be.undefined;
     });
   });
 
   describe('execute', function() {
-    var message, context, fileNewIssue, reply, next, hubotDone,
-        metadata, expectedFileNewIssueArgs, result, logHelper, doExecute;
+    var message, context, getReactions, fileNewIssue, addSuccessReaction,
+        reply, next, hubotDone, metadata,
+        expectedGetReactionsArgs, expectedFileNewIssueArgs,
+        expectedAddSuccessReactionArgs,
+        result, logHelper, doExecute;
 
     beforeEach(function() {
       message = helpers.reactionAddedMessage();
@@ -84,14 +87,24 @@ describe('Middleware', function() {
         }
       };
 
+      getReactions = sinon.stub(slackClient, 'getReactions');
+      addSuccessReaction = sinon.stub(slackClient, 'addSuccessReaction');
       fileNewIssue = sinon.stub(githubClient, 'fileNewIssue');
       reply = context.response.reply;
       next = sinon.spy();
       hubotDone = sinon.spy();
 
       metadata = helpers.metadata();
+      expectedGetReactionsArgs = [helpers.CHANNEL_ID, helpers.TIMESTAMP];
       expectedFileNewIssueArgs = [metadata, 'handbook'];
+      expectedAddSuccessReactionArgs = [helpers.CHANNEL_ID, helpers.TIMESTAMP];
       logHelper = new LogHelper();
+    });
+
+    afterEach(function() {
+      githubClient.fileNewIssue.restore();
+      slackClient.addSuccessReaction.restore();
+      slackClient.getReactions.restore();
     });
 
     doExecute = function(done) {
@@ -123,12 +136,14 @@ describe('Middleware', function() {
       next.calledWith(hubotDone).should.be.true;
       hubotDone.called.should.be.false;
       reply.called.should.be.false;
+      getReactions.called.should.be.false;
       fileNewIssue.called.should.be.false;
+      addSuccessReaction.called.should.be.false;
       logHelper.messages.should.be.empty;
     });
 
     it('should ignore messages that do not match', function() {
-      message.rawMessage.name = 'sad-face';
+      message.rawMessage.reaction = 'sad-face';
       logHelper.captureLog();
       result = middleware.execute(context, next, hubotDone);
       logHelper.restoreLog();
@@ -137,12 +152,16 @@ describe('Middleware', function() {
       next.calledWith(hubotDone).should.be.true;
       hubotDone.called.should.be.false;
       reply.called.should.be.false;
+      getReactions.called.should.be.false;
       fileNewIssue.called.should.be.false;
+      addSuccessReaction.called.should.be.false;
       logHelper.messages.should.be.empty;
     });
 
     it('should successfully parse a message and file an issue', function(done) {
+      getReactions.returns(Promise.resolve(helpers.messageWithReactions()));
       fileNewIssue.returns(Promise.resolve(helpers.ISSUE_URL));
+      addSuccessReaction.returns(Promise.resolve(helpers.ISSUE_URL));
       result = doExecute(done);
 
       if (!result) {
@@ -151,8 +170,13 @@ describe('Middleware', function() {
 
       result.should.become(helpers.ISSUE_URL).then(function() {
         logHelper.restoreLog();
+        getReactions.calledOnce.should.be.true;
+        getReactions.firstCall.args.should.eql(expectedGetReactionsArgs);
         fileNewIssue.calledOnce.should.be.true;
         fileNewIssue.firstCall.args.should.eql(expectedFileNewIssueArgs);
+        addSuccessReaction.calledOnce.should.be.true;
+        addSuccessReaction.firstCall.args.should.eql(
+          expectedAddSuccessReactionArgs);
         reply.calledOnce.should.be.true;
         reply.firstCall.args.should.eql(['created: ' + helpers.ISSUE_URL]);
         next.calledOnce.should.be.true;
@@ -160,7 +184,9 @@ describe('Middleware', function() {
         hubotDone.called.should.be.false;
         logHelper.messages.should.eql([
           helpers.matchingRuleLogMessage(),
+          helpers.getReactionsLogMessage(),
           helpers.githubLogMessage(),
+          helpers.addSuccessReactionLogMessage(),
           helpers.successLogMessage(),
         ]);
       }).should.notify(done);
@@ -169,6 +195,7 @@ describe('Middleware', function() {
     it('should parse a message but fail to file an issue', function(done) {
       var errorMessage = helpers.failureMessage('test failure');
 
+      getReactions.returns(Promise.resolve(helpers.messageWithReactions()));
       fileNewIssue.returns(Promise.reject(new Error('test failure')));
       result = doExecute(done);
 
@@ -178,8 +205,11 @@ describe('Middleware', function() {
 
       result.should.be.rejectedWith(Error, errorMessage).then(function() {
         logHelper.restoreLog();
+        getReactions.calledOnce.should.be.true;
+        getReactions.firstCall.args.should.eql(expectedGetReactionsArgs);
         fileNewIssue.calledOnce.should.be.true;
         fileNewIssue.firstCall.args.should.eql(expectedFileNewIssueArgs);
+        addSuccessReaction.called.should.be.false;
         reply.calledOnce.should.be.true;
         reply.firstCall.args.should.eql([errorMessage]);
         next.calledOnce.should.be.true;
@@ -187,15 +217,55 @@ describe('Middleware', function() {
         hubotDone.called.should.be.false;
         logHelper.messages.should.eql([
           helpers.matchingRuleLogMessage(),
+          helpers.getReactionsLogMessage(),
           helpers.githubLogMessage(),
           helpers.failureLogMessage('test failure')
         ]);
       }).should.notify(done);
     });
 
+    it('should file an issue but fail to add a reaction', function(done) {
+      var errorMessage = 'created ' + helpers.ISSUE_URL +
+        ' but failed to add ' + helpers.SUCCESS_REACTION + ': test failure';
+
+      getReactions.returns(Promise.resolve(helpers.messageWithReactions()));
+      fileNewIssue.returns(Promise.resolve(helpers.ISSUE_URL));
+      addSuccessReaction.returns(Promise.reject(new Error('test failure')));
+      result = doExecute(done);
+
+      if (!result) {
+        return;
+      }
+
+      result.should.be.rejectedWith(Error, errorMessage).then(function() {
+        logHelper.restoreLog();
+        getReactions.calledOnce.should.be.true;
+        getReactions.firstCall.args.should.eql(expectedGetReactionsArgs);
+        fileNewIssue.calledOnce.should.be.true;
+        fileNewIssue.firstCall.args.should.eql(expectedFileNewIssueArgs);
+        addSuccessReaction.calledOnce.should.be.true;
+        addSuccessReaction.firstCall.args.should.eql(
+          expectedAddSuccessReactionArgs);
+        reply.calledOnce.should.be.true;
+        reply.firstCall.args.should.eql([errorMessage]);
+        next.calledOnce.should.be.true;
+        next.calledWith(hubotDone).should.be.true;
+        hubotDone.called.should.be.false;
+        logHelper.messages.should.eql([
+          helpers.matchingRuleLogMessage(),
+          helpers.getReactionsLogMessage(),
+          helpers.githubLogMessage(),
+          helpers.addSuccessReactionLogMessage(),
+          helpers.logMessage(errorMessage)
+        ]);
+      }).should.notify(done);
+    });
+
     it('should not file another issue for the same message when ' +
       'one is in progress', function(done) {
+      getReactions.returns(Promise.resolve(helpers.messageWithReactions()));
       fileNewIssue.returns(Promise.resolve(helpers.ISSUE_URL));
+      addSuccessReaction.returns(Promise.resolve(helpers.ISSUE_URL));
       result = doExecute(done);
 
       if (!result) {
@@ -212,7 +282,9 @@ describe('Middleware', function() {
         var inProgressLogMessage;
 
         logHelper.restoreLog();
+        getReactions.calledOnce.should.be.true;
         fileNewIssue.calledOnce.should.be.true;
+        addSuccessReaction.calledOnce.should.be.true;
 
         inProgressLogMessage = scriptName + ': ' + helpers.MSG_ID +
           ': already in progress';
@@ -222,24 +294,35 @@ describe('Middleware', function() {
     });
 
     it('should not file another issue for the same message when ' +
-      'one is already filed ', function() {
-      var result, alreadyFiledLogMessage;
+      'one is already filed ', function(done) {
+      var messageWithReactions = helpers.messageWithReactions(),
+          result, alreadyFiledLogMessage;
 
-      message.rawMessage.item.message.reactions.push({
+      messageWithReactions.message.reactions.push({
         name: config.successReaction,
         count: 1,
         users: [ helpers.USER_ID ]
       });
 
-      logHelper.captureLog();
-      result = middleware.execute(context, next, hubotDone);
-      logHelper.restoreLog();
-      expect(result).to.be.undefined;
+      getReactions.returns(messageWithReactions);
+      getReactions.returns(Promise.resolve(messageWithReactions));
+      result = doExecute();
 
-      alreadyFiledLogMessage = scriptName + ': ' + helpers.MSG_ID +
-        ': already processed';
-      logHelper.messages.should.include.something.that.deep.equals(
-        alreadyFiledLogMessage);
+      if (!result) {
+        return;
+      }
+
+      return result.should.become(undefined).then(function() {
+        logHelper.restoreLog();
+        getReactions.calledOnce.should.be.true;
+        fileNewIssue.called.should.be.false;
+        addSuccessReaction.called.should.be.false;
+
+        alreadyFiledLogMessage = scriptName + ': ' + helpers.MSG_ID +
+          ': already processed ' + helpers.PERMALINK;
+        logHelper.messages.should.include.something.that.deep.equals(
+          alreadyFiledLogMessage);
+      }).should.notify(done);
     });
   });
 });

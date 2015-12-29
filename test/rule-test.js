@@ -42,25 +42,7 @@ describe('Rule', function() {
     var rule = new Rule(helpers.configRule()),
         message = helpers.reactionAddedMessage().rawMessage,
         client = new FakeSlackClientImpl('hub');
-    message.name = 'sad-face';
-    expect(rule.match(message, new SlackClient(client, config))).to.be.false;
-    expect(client.channelId).to.be.undefined;
-  });
-
-  it('should ignore a message if this is not the first reaction', function() {
-    var rule = new Rule(helpers.configRule()),
-        message = helpers.reactionAddedMessage().rawMessage,
-        client = new FakeSlackClientImpl('hub');
-    message.item.message.reactions[0].count = 2;
-    expect(rule.match(message, new SlackClient(client, config))).to.be.false;
-    expect(client.channelId).to.be.undefined;
-  });
-
-  it('should ignore a message if the inner reaction isn\'t found', function() {
-    var rule = new Rule(helpers.configRule()),
-        message = helpers.reactionAddedMessage().rawMessage,
-        client = new FakeSlackClientImpl('hub');
-    message.item.message.reactions.pop();
+    message.reaction = 'sad-face';
     expect(rule.match(message, new SlackClient(client, config))).to.be.false;
     expect(client.channelId).to.be.undefined;
   });
