@@ -89,7 +89,7 @@ describe('Integration test', function() {
 
     logHelper = new LogHelper();
     logHelper.captureLog();
-    this.room = scriptHelper.createRoom({ name: 'handbook' });
+    this.room = scriptHelper.createRoom({ httpd: false, name: 'handbook' });
     logHelper.restoreLog();
     logMessages = logHelper.messages.slice();
     middlewareImpl = this.room.robot.middleware.receive.stack[0].impl;
@@ -124,7 +124,6 @@ describe('Integration test', function() {
 
   afterEach(function() {
     githubApiServer.close();
-    this.room.destroy();
   });
 
   context('an evergreen_tree reaction to a message', function() {
