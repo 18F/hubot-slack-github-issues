@@ -5,4 +5,4 @@ node_js:
 script: npm run lint && npm test && test/hubot-smoke-test.bash
 after_success:
 - npm run report-coveralls
-- if [ "${TRAVIS_BRANCH}" = "master" ]; then npm run report-cov-cc; fi
+- if [[ "${TRAVIS_BRANCH}" = "master" && "#{TRAVIS_PULL_REQUEST}" = "false" ]]; then npm run report-cov-cc; fi
