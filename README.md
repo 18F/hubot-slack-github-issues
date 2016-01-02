@@ -2,10 +2,8 @@
 
 [![NPM](https://nodei.co/npm/hubot-slack-github-issues.png?compact=true)](https://nodei.co/npm/hubot-slack-github-issues/)<br/>
 [![Build Status](https://travis-ci.org/18F/hubot-slack-github-issues.svg?branch=master)](https://travis-ci.org/18F/hubot-slack-github-issues)
-[![Code
-Climate](https://codeclimate.com/github/18F/hubot-slack-github-issues/badges/gpa.svg)](https://codeclimate.com/github/18F/hubot-slack-github-issues)
-[![Test
-Coverage](https://codeclimate.com/github/18F/hubot-slack-github-issues/badges/coverage.svg)](https://codeclimate.com/github/18F/hubot-slack-github-issues/coverage)
+[![Code Climate](https://codeclimate.com/github/18F/hubot-slack-github-issues/badges/gpa.svg)](https://codeclimate.com/github/18F/hubot-slack-github-issues)
+[![Coverage Status](https://coveralls.io/repos/18F/hubot-slack-github-issues/badge.svg?branch=master&service=github)](https://coveralls.io/github/18F/hubot-slack-github-issues?branch=master)
 
 When a [Slack](https://slack.com/) chat message receives a specific emoji reaction, this [Hubot](https://hubot.github.com/) plugin creates a [GitHub](https://github.com/) issue with a link to that message.
 
