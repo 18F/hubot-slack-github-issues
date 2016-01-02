@@ -1,5 +1,6 @@
 # hubot-slack-github-issues
 
+[![NPM](https://nodei.co/npm/hubot-slack-github-issues.png?compact=true)](https://nodei.co/npm/hubot-slack-github-issues/)<br/>
 [![Build Status](https://travis-ci.org/18F/hubot-slack-github-issues.svg?branch=master)](https://travis-ci.org/18F/hubot-slack-github-issues)
 
 When a [Slack](https://slack.com/) chat message receives a specific emoji reaction, this [Hubot](https://hubot.github.com/) plugin creates a [GitHub](https://github.com/) issue with a link to that message.
