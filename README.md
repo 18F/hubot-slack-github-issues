@@ -197,6 +197,15 @@ with any string matching the tests you wish to run:
 $ npm test -- --grep 'Config'
 ```
 
+To generate a local coverage report, run:
+
+```sh
+$ COVERAGE=true npm test
+```
+
+This will place coverage data into the `coverage/` directory and generate an
+HTML report as `coverage/lcov-report/index.html`.
+
 If you'd like to contribute to this repository, please follow our
 [CONTRIBUTING guidelines](./CONTRIBUTING.md).
 
