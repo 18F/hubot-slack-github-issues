@@ -40,11 +40,7 @@ function getCoverageReportOptions() {
   var options;
 
   if (process.env.CI === 'true') {
-    options = { reporters: ['text'] };
-
-    if (process.env.TRAVIS_BRANCH === 'master') {
-      options.reporters.push('lcovonly');
-    }
+    options = { reporters: ['text', 'lcovonly'] };
   }
   return options;
 }

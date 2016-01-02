@@ -19,6 +19,7 @@
     "chai-things": "^0.2.0",
     "codeclimate-test-reporter": "^0.1.1",
     "coffee-script": "^1.10.0",
+    "coveralls": "^2.11.6",
     "gulp": "^3.9.0",
     "gulp-istanbul": "^0.10.3",
     "gulp-jshint": "^2.0.0",
@@ -35,7 +36,8 @@
   "scripts": {
     "test": "gulp test",
     "lint": "gulp lint",
-    "report-cov": "codeclimate-test-reporter < coverage/lcov.info"
+    "report-cov-cc": "codeclimate-test-reporter < coverage/lcov.info",
+    "report-coveralls": "coveralls < coverage/lcov.info"
   },
   "repository": {
     "type": "git",
