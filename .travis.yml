@@ -1,8 +1,12 @@
 language: node_js
 node_js:
-- "node"
-- "4.2"
+- node
+- '4.2'
 script: npm run lint && npm test && test/hubot-smoke-test.bash
 after_success:
 - npm run report-coveralls
-- if [[ "${TRAVIS_BRANCH}" = "master" && "#{TRAVIS_PULL_REQUEST}" = "false" ]]; then npm run report-cov-cc; fi
+- npm run report-cov-cc
+addons:
+  code_climate:
+    repo_token:
+      secure: bfl+YTvfJAupb4LzqfWUKQQgh6xAQt9S5kcmFKOB9lBXK9NpVCKmfhWXgvdReumWgtBKQu1ZQF8YyJ5ucQTayad7zswEFJNEsTGaaA2XvEjrmtc2mJHN46KdYtCfphDbgebjc1TRc5rGJwn7CXVGDaNSGghzO+cxn12GNbpKieaAl4jLPVqzqBpavrlDCWU55PBJxSUrcIybuVERsndvYpEbCtv+7zdvhfjeR73lwirjuKf8fCXvi5wHLVMf+T/di9w+dCC+GbQvQ+59RZn6H8jhkOlOKhcZbZsVQOWPyc/uqyCtyyY4ouTODqj+LytXO8+DB18D15J2LGfn+wnSOnSGI0oNEn7Z7L6Kuc1X/FFxP0ip/52QNjL8C9dWMBzSUpgryRUx1YoU0nGsUK68xW0AVBmnI8aj6IevHq1Ukn+o+GJMXpan8G5h8a8VdrpabZuSIHp2Y7kcoRu5hfpNkgIgLwc9TpIUxBlAAWCMAK2XQOdcPd2lAA9dUXRVdcu9dupjZ3wtGr4ag/0Z4wcq31mKnTFjOXY4O9AEcQ3gI3gcuLg9LT3DNdFWw4JtIaAwSwD8BNO4yBHqCO4wSCKB7M4svPtL9RDXJBlJH7IjMb5B+m9vmI/BzcB4u+MR/OyykM53MnzGiGBcTHMvDI/cuut45X22iCh+At9+UPy8Xvo=
