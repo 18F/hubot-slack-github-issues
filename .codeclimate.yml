@@ -7,4 +7,6 @@ exclude_paths:
 - "*.md"
 - "*.png"
 - "*.json"
+- "config/*"
 - "test/*"
+- "test/helpers/*"
