@@ -30,12 +30,13 @@ showHelp = (option === '-h' || option === '--help' || option === 'help');
 showVersion = (option === '-v' || option === '--version' ||
   option === 'version');
 
+if (showHelp) {
+  console.log(usage);
+} else if (showVersion) {
+  console.log(packageInfo.name + ' v' + packageInfo.version);
+}
+
 if (showHelp || showVersion) {
-  if (showHelp) {
-    console.log(usage);
-  } else if (showVersion) {
-    console.log(packageInfo.name + ' v' + packageInfo.version);
-  }
   process.exit(0);
 }
 
