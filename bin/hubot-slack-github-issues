@@ -1,0 +1,74 @@
+#! /usr/bin/env node
+
+var packageInfo = require('../package.json');
+var Config = require('../lib/config');
+var fs = require('fs');
+var path = require('path');
+var programName = path.basename(process.argv[1]);
+var option = process.argv[2];
+var usage = [
+  'Usage:',
+  '  ' + programName + ' [-hv|print-template]',
+  '  ' + programName + ' validate <config.json>',
+  '',
+  'Where:',
+  '  -h, --help, help        show this help',
+  '  -v, --version, version  show version info',
+  '  print-template          print an example slack-github-issues.json config',
+  '  validate <config.json>  validate the specified config file',
+].join('\n');
+
+var showHelp, showVersion;
+
+if (option === 'print-template') {
+  var config = require('../config/slack-github-issues.json');
+  console.log(JSON.stringify(config, null, 2));
+  process.exit(0);
+}
+
+showHelp = (option === '-h' || option === '--help' || option === 'help');
+showVersion = (option === '-v' || option === '--version' ||
+  option === 'version');
+
+if (showHelp || showVersion) {
+  if (showHelp) {
+    console.log(usage);
+  } else if (showVersion) {
+    console.log(packageInfo.name + ' v' + packageInfo.version);
+  }
+  process.exit(0);
+}
+
+function exitWithError(message) {
+  console.error(message);
+  process.exit(1);
+}
+
+if (option === 'validate') {
+  var configPath = process.argv[3],
+      fullConfigPath = path.resolve(configPath),
+      configData,
+      configuration;
+
+  if (configPath === undefined) {
+    exitWithError('validate: no config file path specified');
+  }
+
+  if (!fs.existsSync(fullConfigPath)) {
+    exitWithError(configPath + ': does not exist');
+  }
+
+  try {
+    configData = require(fullConfigPath);
+    configuration = new Config(configData);
+  } catch (err) {
+    exitWithError(err.message);
+  }
+  console.log(configPath + ': OK');
+
+} else {
+  if (process.argv.length !== 2) {
+    console.error('Invalid arguments:', process.argv.slice(2).join(' '));
+  }
+  exitWithError(usage);
+}
