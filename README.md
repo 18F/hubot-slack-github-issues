@@ -93,13 +93,24 @@ to each repository. Alternatively, you can [add your GitHub user to a
 team](https://help.github.com/articles/adding-organization-members-to-a-team/)
 with access to private repositories instead.
 
-1. Configure the plugin by [creating a JSON configuration file with these items](#configuration) and [setting these environment variables](#environment-variables).
+1. Configure the plugin by [creating a JSON configuration file with these items](#configuration) and [setting these environment variables](#environment-variables). Validate the configuration by running `hubot-slack-github-issues validate path-to-config.json`.
 
 1. Run `bin/hubot` or otherwise deploy to your preferred environment.
 
 ## Configuration
 
-Create a JSON configuration file conforming to the following schema:
+The configuration file can reside at the default path of
+`config/slack-github-issues.json` within your Hubot installation, or can be
+specified via the `HUBOT_SLACK_GITHUB_ISSUES_CONFIG_PATH` environment
+variable. To create the file from a template, run:
+
+```sh
+$ hubot-slack-github-issues print-template > config/slack-github-issues.json
+```
+
+### Schema
+
+The JSON configuration file must conform to the following schema:
 
 * **githubUser**: GitHub organization or username owning all repositories
 * **githubTimeout**: GitHub API timeout limit in milliseconds
@@ -129,13 +140,26 @@ For example:
 }
 ```
 
-This file can reside at the default path of `config/slack-github-issues.json`
-within your Hubot installation, or can be specified via the
-`HUBOT_SLACK_GITHUB_ISSUES_CONFIG_PATH` environment variable.
-
 For a more complete example, see
 [`test/helpers/test-config.json`](./test/helpers/test-config.json) in this
 repository.
+
+### Validating the config file
+
+To validate the config file before deploying, run the following (replacing
+`config/slack-github-issues.json` with whatever path you chose earlier):
+
+```sh
+$ hubot-slack-github-issues validate config/slack-github-issues.json
+```
+
+If it passes, you will see:
+
+```sh
+config/slack-github-issues.json: OK
+```
+
+Otherwise, an error message will report all schema and constraint violations.
 
 ### Configuration constraints
 

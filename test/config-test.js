@@ -5,9 +5,7 @@
 'use strict';
 
 var Config = require('../lib/config');
-var scriptName = require('../package.json').name;
 var helpers = require('./helpers');
-var LogHelper = require('./helpers/log-helper');
 var chai = require('chai');
 var path = require('path');
 
@@ -15,10 +13,9 @@ var expect = chai.expect;
 chai.should();
 
 describe('Config', function() {
-  var logHelper, newConfig;
+  var newConfig;
 
   before(function() {
-    logHelper = new LogHelper();
     delete process.env.HUBOT_SLACK_GITHUB_ISSUES_CONFIG_PATH;
   });
 
@@ -27,12 +24,7 @@ describe('Config', function() {
   });
 
   newConfig = function(config) {
-    try {
-      logHelper.captureLog();
-      return new Config(config);
-    } finally {
-      logHelper.restoreLog();
-    }
+    return new Config(config);
   };
 
   it('should validate a valid configuration', function() {
@@ -52,7 +44,6 @@ describe('Config', function() {
         errorMessage = 'Invalid configuration:\n  ' + errors.join('\n  ');
 
     expect(function() { newConfig({}); }).to.throw(Error, errorMessage);
-    expect(logHelper.messages).to.eql([scriptName + ': ' + errorMessage]);
   });
 
   it('should raise errors for missing required rules fields', function() {
@@ -70,7 +61,6 @@ describe('Config', function() {
     errorMessage = 'Invalid configuration:\n  ' + errors.join('\n  ');
 
     expect(function() { newConfig(config); }).to.throw(Error, errorMessage);
-    expect(logHelper.messages).to.eql([scriptName + ': ' + errorMessage]);
   });
 
   it('should raise errors for unknown properties', function() {
@@ -97,7 +87,6 @@ describe('Config', function() {
     errorMessage = 'Invalid configuration:\n  ' + errors.join('\n  ');
 
     expect(function() { newConfig(config); }).to.throw(Error, errorMessage);
-    expect(logHelper.messages).to.eql([scriptName + ': ' + errorMessage]);
   });
 
   it('should load from HUBOT_SLACK_GITHUB_ISSUES_CONFIG_PATH', function() {
@@ -109,10 +98,6 @@ describe('Config', function() {
     config = newConfig();
 
     expect(JSON.stringify(config)).to.eql(JSON.stringify(baseConfig));
-    expect(logHelper.messages).to.eql([
-      scriptName + ': loading config from ' +
-        process.env.HUBOT_SLACK_GITHUB_ISSUES_CONFIG_PATH
-    ]);
   });
 
   it('should load from config/slack-github-issues.json by default', function() {
@@ -121,9 +106,6 @@ describe('Config', function() {
 
     config = newConfig();
     expect(JSON.stringify(config)).to.eql(JSON.stringify(defaultConfig));
-    expect(logHelper.messages).to.eql([
-      scriptName + ': loading config from config/slack-github-issues.json'
-    ]);
   });
 
   describe('checkForMisconfiguredRules', function() {
@@ -150,9 +132,6 @@ describe('Config', function() {
           .replace(/\n/g, '\n  ');
 
       expect(function() { newConfig(config); }).to.throw(errorMessage);
-      expect(logHelper.messages).to.eql([
-        scriptName + ': ' + errorMessage
-      ]);
     });
 
     it('should detect when rules are not sorted by channelNames', function() {
@@ -178,9 +157,6 @@ describe('Config', function() {
           .replace(/\n/g, '\n  ');
 
       expect(function() { newConfig(config); }).to.throw(errorMessage);
-      expect(logHelper.messages).to.eql([
-        scriptName + ': ' + errorMessage
-      ]);
     });
 
     it('should detect when rules are not sorted by repository', function() {
@@ -215,9 +191,6 @@ describe('Config', function() {
           .replace(/\n/g, '\n  ');
 
       expect(function() { newConfig(errorConfig); }).to.throw(errorMessage);
-      expect(logHelper.messages).to.eql([
-        scriptName + ': ' + errorMessage
-      ]);
     });
 
     it('should detect unsorted channel names', function() {
@@ -236,9 +209,6 @@ describe('Config', function() {
         '    handbook\n' +
         '    hub';
       expect(function() { newConfig(config); }).to.throw(errorMessage);
-      expect(logHelper.messages).to.eql([
-        scriptName + ': ' + errorMessage
-      ]);
     });
 
     it('should detect duplicate repos for same reaction', function() {
@@ -252,9 +222,6 @@ describe('Config', function() {
         '  duplicate repositories for evergreen_tree rules:\n' +
         '    handbook';
       expect(function() { newConfig(config); }).to.throw(errorMessage);
-      expect(logHelper.messages).to.eql([
-        scriptName + ': ' + errorMessage
-      ]);
     });
 
     it('should detect duplicate repos and channels for reaction', function() {
@@ -274,9 +241,6 @@ describe('Config', function() {
         '  duplicate channels for evergreen_tree rules:\n' +
         '    hub';
       expect(function() { newConfig(config); }).to.throw(errorMessage);
-      expect(logHelper.messages).to.eql([
-        scriptName + ': ' + errorMessage
-      ]);
     });
 
     it('should detect multiple all-channel rules for reaction', function() {
@@ -290,9 +254,6 @@ describe('Config', function() {
       errorMessage = 'Invalid configuration:\n' +
         '  multiple all-channel rules defined for evergreen_tree';
       expect(function() { newConfig(config); }).to.throw(errorMessage);
-      expect(logHelper.messages).to.eql([
-        scriptName + ': ' + errorMessage
-      ]);
     });
   });
 });
