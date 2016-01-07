@@ -1,8 +1,11 @@
 {
   "name": "hubot-slack-github-issues",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Hubot script using the Slack Real Time Messaging API to file GitHub issues",
   "main": "index.js",
+  "bin": {
+    "hubot-slack-github-issues": "./bin/hubot-slack-github-issues"
+  },
   "engines": {
     "node": "4.2.x 5.x"
   },
