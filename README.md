@@ -146,8 +146,15 @@ repository.
 
 ### Validating the config file
 
-To validate the config file before deploying, run the following (replacing
-`config/slack-github-issues.json` with whatever path you chose earlier):
+To validate the config file before deploying, you can copy and paste your
+configuration into [the web-based
+validator](https://pages.18f.gov/hubot-slack-github-issues/). Though it is
+configured to prepopulate and link to the 18F configuration, it can validate
+any configuration.
+
+If you have this packaged installed on your machine, you can instead run the
+following (replacing `config/slack-github-issues.json` with whatever path you
+chose earlier):
 
 ```sh
 $ hubot-slack-github-issues validate config/slack-github-issues.json
@@ -227,6 +234,23 @@ $ COVERAGE=true npm test
 
 This will place coverage data into the `coverage/` directory and generate an
 HTML report as `coverage/lcov-report/index.html`.
+
+### Browser-based config validator
+
+The [`config-validator` directory](config-validator/) contains a very tiny
+web-based validator. To build it, run `npm run browserify-validator`. This
+will create the `config-validator/config-validator.js` bundle. You can then
+view the validator in your browser by navigating to the
+[`config-validator/index.html`](config-validator/index.html) file within your
+local clone of the repository.
+
+To publish the
+[18F hubot-slack-github-issues configuration validator](https://pages.18f.gov/hubot-slack-github-issues),
+copy `config-validator/index.html` and `config-validator/config-validator.js`
+to the root of the
+[`18f-pages` branch of the repository](https://github.com/18F/hubot-slack-github-issues/tree/18f-pages).
+
+## Contributing
 
 If you'd like to contribute to this repository, please follow our
 [CONTRIBUTING guidelines](./CONTRIBUTING.md).

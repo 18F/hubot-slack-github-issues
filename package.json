@@ -17,6 +17,7 @@
     "hubot-slack": "3.x"
   },
   "devDependencies": {
+    "browserify": "^13.0.0",
     "chai": "^3.4.1",
     "chai-as-promised": "^5.1.0",
     "chai-things": "^0.2.0",
@@ -40,7 +41,8 @@
     "test": "gulp test",
     "lint": "gulp lint",
     "report-cov-cc": "codeclimate-test-reporter < coverage/lcov.info",
-    "report-coveralls": "coveralls < coverage/lcov.info"
+    "report-coveralls": "coveralls < coverage/lcov.info",
+    "browserify-validator": "browserify config-validator/index.js -o config-validator/config-validator.js"
   },
   "repository": {
     "type": "git",
