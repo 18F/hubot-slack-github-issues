@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>hubot-slack-github-issues configuration validator</title>
+<script>
+var REPO = '18F/18f-bot';
+var CONFIG_PATH = 'config/slack-github-issues.json';
+var PREFILL_URL = 'https://raw.githubusercontent.com/' + REPO + '/master/' +
+  CONFIG_PATH;
+var EDIT_URL = 'https://github.com/' + REPO + '/edit/master/' + CONFIG_PATH;
+</script>
+<style>
+button {
+  font-size: 100%;
+}
+
+#config-input {
+  font-family: courier, monospace;
+  font-size: 80%;
+}
+
+#result-text {
+  display: inline-block;
+  vertical-align: top;
+  font-family: courier, monospace;
+  font-size: 80%;
+}
+</style>
+</head>
+
+<body>
+<h1><code>hubot-slack-github-issues</code> configuration validator</h1>
+
+<div id='description'></div>
+
+<button onclick='validateConfig()'>Validate</button><br/>
+<textarea id='config-input' rows='64' cols='80'></textarea>
+<div id='result-text'></div>
+
+</body>
+
+<script src='config-validator.js'></script>
+<script>
+var prefillReq = new XMLHttpRequest();
+
+prefillReq.addEventListener('load', function() {
+  document.getElementById('config-input').value = this.responseText;
+});
+prefillReq.open('GET', PREFILL_URL);
+prefillReq.send();
+
+document.getElementById('description').innerHTML = '<p>' +
+  'This is prefilled with the current content from <code>' + CONFIG_PATH +
+  '</code> within the ' + REPO + ' repository.</p>' +
+  '<p>When your updated configuration is ready, copy and paste it into the ' +
+  '<a href="' + EDIT_URL + '">GitHub editor</a> ' + 'to create a new pull ' +
+  'request.</p>';
+</script>
+</html>
