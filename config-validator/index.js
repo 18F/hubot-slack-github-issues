@@ -4,7 +4,7 @@
 
 var Config = require('../lib/config');
 
-var NBSP_REGEX = /  /g;
+var NBSP_REGEX = / {2}/g;
 
 window.validateConfig = function() {
   var configInput = document.getElementById('config-input'),
