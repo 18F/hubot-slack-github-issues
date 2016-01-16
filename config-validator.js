@@ -1,4 +1,39 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+/* jshint node: true */
+
+'use strict';
+
+var Config = require('../lib/config');
+
+var NBSP_REGEX = / {2}/g;
+
+window.validateConfig = function() {
+  var configInput = document.getElementById('config-input'),
+      resultText = document.getElementById('result-text'),
+      config,
+      resultMsg = '';
+
+  try {
+    if (configInput.value.length !== 0) {
+      config = new Config(JSON.parse(configInput.value));
+      resultMsg = 'The configuration is valid.';
+    } else {
+      resultMsg = 'Please enter a JSON configuration object.';
+    }
+  } catch (err) {
+    if (err instanceof SyntaxError) {
+      resultMsg = 'The JSON failed to parse: ' + err.message;
+    } else {
+      err.message.split('\n').forEach(function(item) {
+        resultMsg = resultMsg + item.replace(NBSP_REGEX, '&nbsp;&nbsp;') +
+          '<br/>';
+      });
+    }
+  }
+  resultText.innerHTML = '<p>' + resultMsg + '</p>';
+};
+
+},{"../lib/config":2}],2:[function(require,module,exports){
 (function (process){
 /* jshint node: true */
 'use strict';
@@ -251,7 +286,7 @@ function detectDuplicates(property, index, properties) {
 }
 
 }).call(this,require('_process'))
-},{"./log":2,"_process":5,"fs":4}],2:[function(require,module,exports){
+},{"./log":3,"_process":5,"fs":4}],3:[function(require,module,exports){
 /* jshint node: true */
 'use strict';
 
@@ -261,69 +296,7 @@ module.exports = function(message) {
   console.log(scriptName + ': ' + message);
 };
 
-},{"../package.json":3}],3:[function(require,module,exports){
-module.exports={
-  "name": "hubot-slack-github-issues",
-  "version": "0.1.2",
-  "description": "Hubot script using the Slack Real Time Messaging API to file GitHub issues",
-  "main": "index.js",
-  "bin": {
-    "hubot-slack-github-issues": "./bin/hubot-slack-github-issues"
-  },
-  "engines": {
-    "node": "4.2.x 5.x"
-  },
-  "dependencies": {
-    "slack-client": "^1.5.0"
-  },
-  "peerDependencies": {
-    "hubot": "2.x",
-    "hubot-slack": "3.x"
-  },
-  "devDependencies": {
-    "chai": "^3.4.1",
-    "chai-as-promised": "^5.1.0",
-    "chai-things": "^0.2.0",
-    "codeclimate-test-reporter": "^0.1.1",
-    "coffee-script": "^1.10.0",
-    "coveralls": "^2.11.6",
-    "gulp": "^3.9.0",
-    "gulp-istanbul": "^0.10.3",
-    "gulp-jshint": "^2.0.0",
-    "gulp-mocha": "^2.2.0",
-    "hubot": "^2.17.0",
-    "hubot-slack": "^3.4.2",
-    "hubot-test-helper": "^1.3.0",
-    "istanbul": "^0.4.1",
-    "jshint": "^2.8.0",
-    "mocha": "^2.3.4",
-    "sinon": "^1.17.2",
-    "yargs": "^3.31.0"
-  },
-  "scripts": {
-    "test": "gulp test",
-    "lint": "gulp lint",
-    "report-cov-cc": "codeclimate-test-reporter < coverage/lcov.info",
-    "report-coveralls": "coveralls < coverage/lcov.info"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/18F/hubot-slack-github-issues.git"
-  },
-  "keywords": [
-    "hubot",
-    "slack",
-    "github"
-  ],
-  "author": "Mike Bland <michael.bland@gsa.gov> (https://18f.gsa.gov/)",
-  "license": "CC0-1.0",
-  "bugs": {
-    "url": "https://github.com/18F/hubot-slack-github-issues/issues"
-  },
-  "homepage": "https://github.com/18F/hubot-slack-github-issues#readme"
-}
-
-},{}],4:[function(require,module,exports){
+},{"../package.json":6}],4:[function(require,module,exports){
 
 },{}],5:[function(require,module,exports){
 // shim for using process in browser
@@ -358,7 +331,9 @@ function drainQueue() {
         currentQueue = queue;
         queue = [];
         while (++queueIndex < len) {
-            currentQueue[queueIndex].run();
+            if (currentQueue) {
+                currentQueue[queueIndex].run();
+            }
         }
         queueIndex = -1;
         len = queue.length;
@@ -410,7 +385,6 @@ process.binding = function (name) {
     throw new Error('process.binding is not supported');
 };
 
-// TODO(shtylman)
 process.cwd = function () { return '/' };
 process.chdir = function (dir) {
     throw new Error('process.chdir is not supported');
@@ -418,38 +392,67 @@ process.chdir = function (dir) {
 process.umask = function() { return 0; };
 
 },{}],6:[function(require,module,exports){
-/* jshint node: true */
-
-'use strict';
-
-var Config = require('../lib/config');
-
-var NBSP_REGEX = /  /g;
-
-window.validateConfig = function() {
-  var configInput = document.getElementById('config-input'),
-      resultText = document.getElementById('result-text'),
-      config,
-      resultMsg = '';
-
-  try {
-    if (configInput.value.length !== 0) {
-      config = new Config(JSON.parse(configInput.value));
-      resultMsg = 'The configuration is valid.';
-    } else {
-      resultMsg = 'Please enter a JSON configuration object.';
-    }
-  } catch (err) {
-    if (err instanceof SyntaxError) {
-      resultMsg = 'The JSON failed to parse: ' + err.message;
-    } else {
-      err.message.split('\n').forEach(function(item) {
-        resultMsg = resultMsg + item.replace(NBSP_REGEX, '&nbsp;&nbsp;') +
-          '<br/>';
-      });
-    }
-  }
-  resultText.innerHTML = '<p>' + resultMsg + '</p>'
+module.exports={
+  "name": "hubot-slack-github-issues",
+  "version": "0.1.2",
+  "description": "Hubot script using the Slack Real Time Messaging API to file GitHub issues",
+  "main": "index.js",
+  "bin": {
+    "hubot-slack-github-issues": "./bin/hubot-slack-github-issues"
+  },
+  "engines": {
+    "node": "4.2.x 5.x"
+  },
+  "dependencies": {
+    "slack-client": "^1.5.0"
+  },
+  "peerDependencies": {
+    "hubot": "2.x",
+    "hubot-slack": "3.x"
+  },
+  "devDependencies": {
+    "browserify": "^13.0.0",
+    "chai": "^3.4.1",
+    "chai-as-promised": "^5.1.0",
+    "chai-things": "^0.2.0",
+    "codeclimate-test-reporter": "^0.1.1",
+    "coffee-script": "^1.10.0",
+    "coveralls": "^2.11.6",
+    "gulp": "^3.9.0",
+    "gulp-istanbul": "^0.10.3",
+    "gulp-jshint": "^2.0.0",
+    "gulp-mocha": "^2.2.0",
+    "hubot": "^2.17.0",
+    "hubot-slack": "^3.4.2",
+    "hubot-test-helper": "^1.3.0",
+    "istanbul": "^0.4.1",
+    "jshint": "^2.8.0",
+    "mocha": "^2.3.4",
+    "sinon": "^1.17.2",
+    "yargs": "^3.31.0"
+  },
+  "scripts": {
+    "test": "gulp test",
+    "lint": "gulp lint",
+    "report-cov-cc": "codeclimate-test-reporter < coverage/lcov.info",
+    "report-coveralls": "coveralls < coverage/lcov.info",
+    "browserify-validator": "browserify config-validator/index.js -o config-validator/config-validator.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/18F/hubot-slack-github-issues.git"
+  },
+  "keywords": [
+    "hubot",
+    "slack",
+    "github"
+  ],
+  "author": "Mike Bland <michael.bland@gsa.gov> (https://18f.gsa.gov/)",
+  "license": "CC0-1.0",
+  "bugs": {
+    "url": "https://github.com/18F/hubot-slack-github-issues/issues"
+  },
+  "homepage": "https://github.com/18F/hubot-slack-github-issues#readme"
 }
 
-},{"../lib/config":1}]},{},[6]);
+},{}]},{},[1]);
