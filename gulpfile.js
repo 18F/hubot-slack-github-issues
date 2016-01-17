@@ -64,7 +64,8 @@ gulp.task('test', TEST_DEPENDENCIES, function() {
 
 gulp.task('lint', function() {
   return gulp.src([
-    'bin/*', '*.js', 'scripts/**/*.js', 'lib/**/*.js', 'test/**/*.js'])
+    'bin/*', '*.js', 'scripts/**/*.js', 'lib/**/*.js', 'test/**/*.js',
+    'config-validator/index.js'])
     .pipe(jshint())
     .pipe(jshint.reporter('default'));
 });

@@ -4,3 +4,4 @@
 coverage/*
 node_modules/
 .hubot_history
+config-validator/config-validator.js
