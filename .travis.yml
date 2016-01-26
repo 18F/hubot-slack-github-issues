@@ -2,7 +2,7 @@ language: node_js
 node_js:
 - node
 - '4.2'
-script: npm run lint && npm test && test/hubot-smoke-test.bash
+script: npm run lint && npm test
 after_success:
 - npm run report-coveralls
 - npm run report-cov-cc
