@@ -1,12 +1,13 @@
 /* jshint node: true */
 /* jshint mocha: true */
+/* jshint expr: true */
 
 'use strict';
 
 var SlackClient = require('../lib/slack-client');
+var ApiStubServer = require('./helpers/api-stub-server');
 var helpers = require('./helpers');
-var testConfig = require('./helpers/test-config.json');
-var launchServer = require('./helpers/fake-slack-api-server').launch;
+var url = require('url');
 var chai = require('chai');
 var chaiAsPromised = require('chai-as-promised');
 
@@ -14,42 +15,47 @@ chai.should();
 chai.use(chaiAsPromised);
 
 describe('SlackClient', function() {
-  var slackToken, slackApiServer, slackClient, createServer, payload, params;
+  var slackClient, config, slackApiServer, slackToken, setResponse, payload,
+      params;
 
   before(function() {
-    slackClient = new SlackClient(undefined, testConfig);
-    slackClient.protocol = 'http:';
-    slackClient.host = 'localhost';
+    slackApiServer = new ApiStubServer();
+    config = helpers.baseConfig();
+    config.slackApiBaseUrl = slackApiServer.address() + '/api/';
+    slackClient = new SlackClient(undefined, config);
+
     slackToken = '<18F-slack-api-token>';
     process.env.HUBOT_SLACK_TOKEN = slackToken;
   });
 
   after(function() {
     delete process.env.HUBOT_SLACK_TOKEN;
-  });
-
-  beforeEach(function() {
-    slackApiServer = undefined;
-    payload = helpers.messageWithReactions();
+    slackApiServer.close();
   });
 
   afterEach(function() {
-    if (slackApiServer) {
-      slackApiServer.close();
-    }
+    slackApiServer.urlsToResponses = {};
   });
 
-  createServer = function(expectedUrl, expectedParams, statusCode, payload) {
-    var urlsToResponses = {};
-
-    urlsToResponses[expectedUrl] = {
+  setResponse = function(expectedUrl, expectedParams, statusCode, payload) {
+    slackApiServer.urlsToResponses[expectedUrl] = {
       expectedParams: expectedParams,
       statusCode: statusCode,
       payload: payload
     };
-    slackApiServer = launchServer(urlsToResponses);
-    slackClient.port = slackApiServer.address().port;
   };
+
+  describe('API base URL', function() {
+    it('should parse the local server URL', function() {
+      url.format(slackClient.baseurl).should.eql(
+        slackApiServer.address() + '/api/');
+    });
+
+    it('should parse API_BASE_URL if config base URL undefined', function() {
+      var slackClient = new SlackClient(undefined, helpers.baseConfig());
+      url.format(slackClient.baseurl).should.eql(SlackClient.API_BASE_URL);
+    });
+  });
 
   describe('getReactions', function() {
     beforeEach(function() {
@@ -58,15 +64,21 @@ describe('SlackClient', function() {
         timestamp: helpers.TIMESTAMP,
         token: slackToken
       };
+      payload = helpers.messageWithReactions();
     });
 
     it('should make a successful request', function() {
-      createServer('/api/reactions.get', params, 200, payload);
+      setResponse('/api/reactions.get', params, 200, payload);
       return slackClient.getReactions(helpers.CHANNEL_ID, helpers.TIMESTAMP)
         .should.become(payload);
     });
 
     it('should fail to make a request if the server is down', function() {
+      var config = helpers.baseConfig(),
+          slackClient;
+      config.slackApiBaseUrl = 'http://localhost';
+      slackClient = new SlackClient(undefined, config);
+
       return slackClient.getReactions(helpers.CHANNEL_ID, helpers.TIMESTAMP)
         .should.be.rejectedWith('failed to make Slack API request ' +
           'for method reactions.get:');
@@ -77,14 +89,14 @@ describe('SlackClient', function() {
         ok: false,
         error: 'not_authed'
       };
-      createServer('/api/reactions.get', params, 200, payload);
+      setResponse('/api/reactions.get', params, 200, payload);
       return slackClient.getReactions(helpers.CHANNEL_ID, helpers.TIMESTAMP)
         .should.be.rejectedWith(Error, 'Slack API method reactions.get ' +
           'failed: ' + payload.error);
     });
 
     it('should make a request that produces a non-200 response', function() {
-      createServer('/api/reactions.get', params, 404, 'Not found');
+      setResponse('/api/reactions.get', params, 404, 'Not found');
       return slackClient.getReactions(helpers.CHANNEL_ID, helpers.TIMESTAMP)
         .should.be.rejectedWith(Error, 'received 404 response from ' +
           'Slack API method reactions.get: "Not found"');
@@ -96,13 +108,14 @@ describe('SlackClient', function() {
       params = {
         channel: helpers.CHANNEL_ID,
         timestamp: helpers.TIMESTAMP,
-        name: testConfig.successReaction,
+        name: config.successReaction,
         token: slackToken
       };
+      payload = { ok: true };
     });
 
     it('should make a successful request', function() {
-      createServer('/api/reactions.add', params, 200, payload);
+      setResponse('/api/reactions.add', params, 200, payload);
       return slackClient.addSuccessReaction(
         helpers.CHANNEL_ID, helpers.TIMESTAMP).should.become(payload);
     });

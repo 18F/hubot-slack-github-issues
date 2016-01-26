@@ -5,14 +5,14 @@
 'use strict';
 
 var Middleware = require('../lib/middleware');
-var scriptName = require('../package.json').name;
+var Config = require('../lib/config');
+var Rule = require('../lib/rule');
 var GitHubClient = require('../lib/github-client');
 var SlackClient = require('../lib/slack-client');
+var Logger = require('../lib/logger');
 var helpers = require('./helpers');
-var FakeSlackClientImpl = require('./helpers/fake-slack-client-impl');
-var LogHelper = require('./helpers/log-helper');
-var sinon = require('sinon');
 var chai = require('chai');
+var sinon = require('sinon');
 var chaiAsPromised = require('chai-as-promised');
 var chaiThings = require('chai-things');
 
@@ -22,28 +22,31 @@ chai.use(chaiAsPromised);
 chai.use(chaiThings);
 
 describe('Middleware', function() {
-  var config, slackClientImpl, slackClient, githubClient, middleware;
+  var config, slackClient, githubClient, logger, middleware;
 
   beforeEach(function() {
-    config = helpers.baseConfig();
-    slackClientImpl = new FakeSlackClientImpl('handbook');
-    slackClient = new SlackClient(slackClientImpl, config);
-    githubClient = new GitHubClient(helpers.baseConfig(), {});
-    middleware = new Middleware(config, slackClient, githubClient);
-  });
-
-  describe('parseMetadata', function() {
-    it('should parse GitHub request metadata from a message', function() {
-      middleware.parseMetadata(helpers.messageWithReactions())
-        .should.eql(helpers.metadata());
-      slackClientImpl.channelId.should.equal(helpers.CHANNEL_ID);
-    });
+    config = new Config(helpers.baseConfig());
+    slackClient = new SlackClient(undefined, config);
+    githubClient = new GitHubClient(config);
+    logger = new Logger(console);
+    middleware = new Middleware(config, slackClient, githubClient, logger);
   });
 
   describe('findMatchingRule', function() {
+    var getChannelName, message;
+
+    beforeEach(function() {
+      getChannelName = sinon.stub(slackClient, 'getChannelName');
+      getChannelName.returns('not-any-channel-from-any-config-rule');
+      message = helpers.reactionAddedMessage();
+    });
+
+    afterEach(function() {
+      getChannelName.restore();
+    });
+
     it('should find the rule matching the message', function() {
-      var message = helpers.reactionAddedMessage().rawMessage,
-          expected = config.rules[1],
+      var expected = config.rules[1],
           result = middleware.findMatchingRule(message);
 
       result.reactionName.should.equal(expected.reactionName);
@@ -59,270 +62,204 @@ describe('Middleware', function() {
     });
 
     it('should ignore a message if its type does not match', function() {
-      var message = helpers.reactionAddedMessage();
       message.type = 'hello';
       expect(middleware.findMatchingRule(message)).to.be.undefined;
     });
 
-    it('should ignore messages that do not match', function() {
-      var message = helpers.reactionAddedMessage().rawMessage;
+    it('should ignore a message if its item type does not match', function() {
+      message.item.type = 'file';
+      expect(middleware.findMatchingRule(message)).to.be.undefined;
+    });
+
+    it('should ignore messages that do not match any rule', function() {
       message.reaction = 'sad-face';
       expect(middleware.findMatchingRule(message)).to.be.undefined;
     });
   });
 
-  describe('execute', function() {
-    var message, context, getReactions, fileNewIssue, addSuccessReaction,
-        reply, next, hubotDone, metadata,
-        expectedGetReactionsArgs, expectedFileNewIssueArgs,
-        expectedAddSuccessReactionArgs,
-        result, logHelper, doExecute;
+  describe('parseMetadata', function() {
+    var getChannelName;
 
     beforeEach(function() {
-      message = helpers.reactionAddedMessage();
-      context = {
-        response: {
-          message: message,
-          reply: sinon.spy()
-        }
-      };
-
-      getReactions = sinon.stub(slackClient, 'getReactions');
-      addSuccessReaction = sinon.stub(slackClient, 'addSuccessReaction');
-      fileNewIssue = sinon.stub(githubClient, 'fileNewIssue');
-      reply = context.response.reply;
-      next = sinon.spy();
-      hubotDone = sinon.spy();
-
-      metadata = helpers.metadata();
-      expectedGetReactionsArgs = [helpers.CHANNEL_ID, helpers.TIMESTAMP];
-      expectedFileNewIssueArgs = [metadata, 'handbook'];
-      expectedAddSuccessReactionArgs = [helpers.CHANNEL_ID, helpers.TIMESTAMP];
-      logHelper = new LogHelper();
+      getChannelName = sinon.stub(slackClient, 'getChannelName');
+      getChannelName.returns('handbook');
     });
 
     afterEach(function() {
-      githubClient.fileNewIssue.restore();
-      slackClient.addSuccessReaction.restore();
-      slackClient.getReactions.restore();
+      getChannelName.restore();
     });
 
-    doExecute = function(done) {
-      var result;
+    it('should parse GitHub request metadata from a message', function() {
+      middleware.parseMetadata(helpers.messageWithReactions())
+        .should.eql(helpers.metadata());
+      getChannelName.calledOnce.should.be.true;
+      getChannelName.args.should.have.deep.property('[0]')
+        .that.deep.equals([helpers.CHANNEL_ID]);
+    });
+  });
 
-      try {
-        logHelper.captureLog();
-        result = middleware.execute(context, next, hubotDone);
+  describe('execute', function() {
+    var context, next, hubotDone, message, checkErrorResponse;
 
-        if (!result) {
-          logHelper.restoreLog();
-          return done(new Error('middleware.execute did not return a Promise'));
+    beforeEach(function() {
+      context = {
+        response: {
+          message: helpers.fullReactionAddedMessage(),
+          reply: sinon.spy()
         }
-        return result;
+      };
+      next = sinon.spy();
+      hubotDone = sinon.spy();
+      message = helpers.fullReactionAddedMessage();
 
-      } catch(err) {
-        logHelper.restoreLog();
-        throw err;
-      }
-    };
+      slackClient = sinon.stub(slackClient);
+      githubClient = sinon.stub(githubClient);
+      logger = sinon.stub(logger);
 
-    it('should ignore messages that are not reaction_added', function() {
-      message.rawMessage = { type: 'hello' };
-      logHelper.captureLog();
-      result = middleware.execute(context, next, hubotDone);
-      logHelper.restoreLog();
-      expect(result).to.be.undefined;
-      next.calledOnce.should.be.true;
-      next.calledWith(hubotDone).should.be.true;
-      hubotDone.called.should.be.false;
-      reply.called.should.be.false;
-      getReactions.called.should.be.false;
-      fileNewIssue.called.should.be.false;
-      addSuccessReaction.called.should.be.false;
-      logHelper.messages.should.be.empty;
+      slackClient.getChannelName.returns('handbook');
+      slackClient.getTeamDomain.returns('18f');
+
+      slackClient.getReactions
+        .returns(Promise.resolve(helpers.messageWithReactions()));
+      githubClient.fileNewIssue.returns(Promise.resolve(helpers.ISSUE_URL));
+      slackClient.addSuccessReaction
+        .returns(Promise.resolve(helpers.ISSUE_URL));
     });
 
-    it('should ignore messages that do not match', function() {
-      message.rawMessage.reaction = 'sad-face';
-      logHelper.captureLog();
-      result = middleware.execute(context, next, hubotDone);
-      logHelper.restoreLog();
-      expect(result).to.be.undefined;
-      next.calledOnce.should.be.true;
-      next.calledWith(hubotDone).should.be.true;
-      hubotDone.called.should.be.false;
-      reply.called.should.be.false;
-      getReactions.called.should.be.false;
-      fileNewIssue.called.should.be.false;
-      addSuccessReaction.called.should.be.false;
-      logHelper.messages.should.be.empty;
-    });
+    it('should receive a message and file an issue', function(done) {
+      middleware.execute(context, next, hubotDone)
+        .should.become(helpers.ISSUE_URL).then(function() {
+        var matchingRule = new Rule(helpers.baseConfig().rules[1]);
 
-    it('should successfully parse a message and file an issue', function(done) {
-      getReactions.returns(Promise.resolve(helpers.messageWithReactions()));
-      fileNewIssue.returns(Promise.resolve(helpers.ISSUE_URL));
-      addSuccessReaction.returns(Promise.resolve(helpers.ISSUE_URL));
-      result = doExecute(done);
-
-      if (!result) {
-        return;
-      }
-
-      result.should.become(helpers.ISSUE_URL).then(function() {
-        logHelper.restoreLog();
-        getReactions.calledOnce.should.be.true;
-        getReactions.firstCall.args.should.eql(expectedGetReactionsArgs);
-        fileNewIssue.calledOnce.should.be.true;
-        fileNewIssue.firstCall.args.should.eql(expectedFileNewIssueArgs);
-        addSuccessReaction.calledOnce.should.be.true;
-        addSuccessReaction.firstCall.args.should.eql(
-          expectedAddSuccessReactionArgs);
-        reply.calledOnce.should.be.true;
-        reply.firstCall.args.should.eql(['created: ' + helpers.ISSUE_URL]);
-        next.calledOnce.should.be.true;
+        context.response.reply.args.should.eql([
+          ['created: ' + helpers.ISSUE_URL]
+        ]);
         next.calledWith(hubotDone).should.be.true;
-        hubotDone.called.should.be.false;
-        logHelper.messages.should.eql([
-          helpers.matchingRuleLogMessage(),
-          helpers.getReactionsLogMessage(),
-          helpers.githubLogMessage(),
-          helpers.addSuccessReactionLogMessage(),
-          helpers.successLogMessage(),
+        logger.info.args.should.eql([
+          helpers.logArgs('matches rule:', matchingRule),
+          helpers.logArgs('getting reactions for', helpers.PERMALINK),
+          helpers.logArgs('making GitHub request for', helpers.PERMALINK),
+          helpers.logArgs('adding', helpers.baseConfig().successReaction),
+          helpers.logArgs('created: ' + helpers.ISSUE_URL)
         ]);
       }).should.notify(done);
     });
 
-    it('should parse a message but fail to file an issue', function(done) {
-      var errorMessage = helpers.failureMessage('test failure');
+    it('should ignore messages that do not match', function() {
+      delete context.response.message.rawMessage;
+      expect(middleware.execute(context, next, hubotDone)).to.be.undefined;
+      next.calledWith(hubotDone).should.be.true;
+    });
 
-      getReactions.returns(Promise.resolve(helpers.messageWithReactions()));
-      fileNewIssue.returns(Promise.reject(new Error('test failure')));
-      result = doExecute(done);
+    it('should not file another issue for the same message when ' +
+      'one is in progress', function(done) {
+      var result;
 
-      if (!result) {
-        return;
+      result = middleware.execute(context, next, hubotDone);
+      if (middleware.execute(context, next, hubotDone) !== undefined) {
+        return done(new Error('middleware.execute did not prevent filing a ' +
+          'second issue when one was already in progress'));
       }
 
-      result.should.be.rejectedWith(Error, errorMessage).then(function() {
-        logHelper.restoreLog();
-        getReactions.calledOnce.should.be.true;
-        getReactions.firstCall.args.should.eql(expectedGetReactionsArgs);
-        fileNewIssue.calledOnce.should.be.true;
-        fileNewIssue.firstCall.args.should.eql(expectedFileNewIssueArgs);
-        addSuccessReaction.called.should.be.false;
-        reply.calledOnce.should.be.true;
-        reply.firstCall.args.should.eql([errorMessage]);
-        next.calledOnce.should.be.true;
-        next.calledWith(hubotDone).should.be.true;
-        hubotDone.called.should.be.false;
-        logHelper.messages.should.eql([
-          helpers.matchingRuleLogMessage(),
-          helpers.getReactionsLogMessage(),
-          helpers.githubLogMessage(),
-          helpers.failureLogMessage('test failure')
-        ]);
+      result.should.become(helpers.ISSUE_URL).then(function() {
+        logger.info.args.should.include.something.that.deep.equals(
+          helpers.logArgs('already in progress'));
+
+        // Make another call to ensure that the ID is cleaned up. Normally the
+        // message will have a successReaction after the first successful
+        // request, but we'll test that in another case.
+        middleware.execute(context, next, hubotDone)
+          .should.become(helpers.ISSUE_URL).should.notify(done);
+      });
+    });
+
+    it('should not file another issue for the same message when ' +
+      'one is already filed ', function(done) {
+      var message = helpers.messageWithReactions();
+
+      message.message.reactions.push({
+        name: config.successReaction,
+        count: 1,
+        users: [ helpers.USER_ID ]
+      });
+      slackClient.getReactions.returns(Promise.resolve(message));
+
+      middleware.execute(context, next, hubotDone)
+        .should.be.rejectedWith('already processed').then(function() {
+        slackClient.getReactions.calledOnce.should.be.true;
+        githubClient.fileNewIssue.called.should.be.false;
+        slackClient.addSuccessReaction.called.should.be.false;
+        context.response.reply.called.should.be.false;
+        logger.info.args.should.include.something.that.deep.equals(
+          helpers.logArgs('already processed ' + helpers.PERMALINK));
+      }).should.notify(done);
+    });
+
+    checkErrorResponse = function(errorMessage) {
+      context.response.reply.args.should.have.deep.property(
+        '[0][0].message', errorMessage);
+      logger.error.args.should.have.deep.property('[0][0]', helpers.MESSAGE_ID);
+      logger.error.args.should.have.deep.property('[0][1]', errorMessage);
+    };
+
+    it('should receive a message but fail to get reactions', function(done) {
+      var errorMessage = 'failed to get reactions for ' + helpers.PERMALINK +
+        ': test failure';
+
+      slackClient.getReactions
+        .returns(Promise.reject(new Error('test failure')));
+
+      middleware.execute(context, next, hubotDone)
+        .should.be.rejectedWith(errorMessage).then(function() {
+        slackClient.getReactions.calledOnce.should.be.true;
+        githubClient.fileNewIssue.called.should.be.false;
+        slackClient.addSuccessReaction.called.should.be.false;
+        checkErrorResponse(errorMessage);
+      }).should.notify(done);
+    });
+
+    it('should get reactions but fail to file an issue', function(done) {
+      var errorMessage = 'failed to create a GitHub issue in 18F/handbook: ' +
+        'test failure';
+
+      githubClient.fileNewIssue
+        .returns(Promise.reject(new Error('test failure')));
+
+      middleware.execute(context, next, hubotDone)
+        .should.be.rejectedWith(errorMessage).then(function() {
+        slackClient.getReactions.calledOnce.should.be.true;
+        githubClient.fileNewIssue.calledOnce.should.be.true;
+        slackClient.addSuccessReaction.called.should.be.false;
+        checkErrorResponse(errorMessage);
       }).should.notify(done);
     });
 
     it('should file an issue but fail to add a reaction', function(done) {
       var errorMessage = 'created ' + helpers.ISSUE_URL +
-        ' but failed to add ' + helpers.SUCCESS_REACTION + ': test failure';
+        ' but failed to add ' + helpers.baseConfig().successReaction +
+        ': test failure';
 
-      getReactions.returns(Promise.resolve(helpers.messageWithReactions()));
-      fileNewIssue.returns(Promise.resolve(helpers.ISSUE_URL));
-      addSuccessReaction.returns(Promise.reject(new Error('test failure')));
-      result = doExecute(done);
+      slackClient.addSuccessReaction
+        .returns(Promise.reject(new Error('test failure')));
 
-      if (!result) {
-        return;
-      }
-
-      result.should.be.rejectedWith(Error, errorMessage).then(function() {
-        logHelper.restoreLog();
-        getReactions.calledOnce.should.be.true;
-        getReactions.firstCall.args.should.eql(expectedGetReactionsArgs);
-        fileNewIssue.calledOnce.should.be.true;
-        fileNewIssue.firstCall.args.should.eql(expectedFileNewIssueArgs);
-        addSuccessReaction.calledOnce.should.be.true;
-        addSuccessReaction.firstCall.args.should.eql(
-          expectedAddSuccessReactionArgs);
-        reply.calledOnce.should.be.true;
-        reply.firstCall.args.should.eql([errorMessage]);
-        next.calledOnce.should.be.true;
-        next.calledWith(hubotDone).should.be.true;
-        hubotDone.called.should.be.false;
-        logHelper.messages.should.eql([
-          helpers.matchingRuleLogMessage(),
-          helpers.getReactionsLogMessage(),
-          helpers.githubLogMessage(),
-          helpers.addSuccessReactionLogMessage(),
-          helpers.logMessage(errorMessage)
-        ]);
+      middleware.execute(context, next, hubotDone)
+        .should.be.rejectedWith(errorMessage).then(function() {
+        slackClient.getReactions.calledOnce.should.be.true;
+        githubClient.fileNewIssue.calledOnce.should.be.true;
+        slackClient.addSuccessReaction.calledOnce.should.be.true;
+        checkErrorResponse(errorMessage);
       }).should.notify(done);
     });
 
-    it('should not file another issue for the same message when ' +
-      'one is in progress', function(done) {
-      getReactions.returns(Promise.resolve(helpers.messageWithReactions()));
-      fileNewIssue.returns(Promise.resolve(helpers.ISSUE_URL));
-      addSuccessReaction.returns(Promise.resolve(helpers.ISSUE_URL));
-      result = doExecute(done);
+    it('should catch and log unanticipated errors', function() {
+      var errorMessage = 'unhandled error: Error\nmessage: ' +
+            JSON.stringify(helpers.reactionAddedMessage(), null, 2);
 
-      if (!result) {
-        return;
-      }
-
-      if (middleware.execute(context, next, hubotDone) !== undefined) {
-        logHelper.restoreLog();
-        return done(new Error('middleware.execute did not prevent a second ' +
-          'issue being filed when one was in progress'));
-      }
-
-      return result.should.become(helpers.ISSUE_URL).then(function() {
-        var inProgressLogMessage;
-
-        logHelper.restoreLog();
-        getReactions.calledOnce.should.be.true;
-        fileNewIssue.calledOnce.should.be.true;
-        addSuccessReaction.calledOnce.should.be.true;
-
-        inProgressLogMessage = scriptName + ': ' + helpers.MSG_ID +
-          ': already in progress';
-        logHelper.messages.should.include.something.that.deep.equals(
-          inProgressLogMessage);
-      }).should.notify(done);
-    });
-
-    it('should not file another issue for the same message when ' +
-      'one is already filed ', function(done) {
-      var messageWithReactions = helpers.messageWithReactions(),
-          result, alreadyFiledLogMessage;
-
-      messageWithReactions.message.reactions.push({
-        name: config.successReaction,
-        count: 1,
-        users: [ helpers.USER_ID ]
-      });
-
-      getReactions.returns(messageWithReactions);
-      getReactions.returns(Promise.resolve(messageWithReactions));
-      result = doExecute();
-
-      if (!result) {
-        return;
-      }
-
-      return result.should.become(undefined).then(function() {
-        logHelper.restoreLog();
-        getReactions.calledOnce.should.be.true;
-        fileNewIssue.called.should.be.false;
-        addSuccessReaction.called.should.be.false;
-
-        alreadyFiledLogMessage = scriptName + ': ' + helpers.MSG_ID +
-          ': already processed ' + helpers.PERMALINK;
-        logHelper.messages.should.include.something.that.deep.equals(
-          alreadyFiledLogMessage);
-      }).should.notify(done);
+      slackClient.getChannelName.throws();
+      expect(middleware.execute(context, next, hubotDone)).to.be.undefined;
+      next.calledWith(hubotDone).should.be.true;
+      context.response.reply.args.should.eql([[errorMessage]]);
+      logger.error.args.should.eql([[null, errorMessage]]);
     });
   });
 });
