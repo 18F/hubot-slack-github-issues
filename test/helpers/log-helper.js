@@ -11,7 +11,7 @@ function LogHelper() {
   this.messages = messages;
   this.recordMessages = function() {
     var i, args = new Array(arguments.length);
-    for (i = 0; i != args.length; ++i) {
+    for (i = 0; i !== args.length; ++i) {
       args[i] = arguments[i];
     }
     messages.push(args.join(' '));

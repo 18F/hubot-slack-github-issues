@@ -73,7 +73,7 @@ exports = module.exports = {
     var args = new Array(arguments.length),
         i;
 
-    for (i = 0; i != args.length; ++i) {
+    for (i = 0; i !== args.length; ++i) {
       args[i] = arguments[i];
     }
     args.unshift(exports.MESSAGE_ID);
