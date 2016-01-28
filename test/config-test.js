@@ -5,16 +5,15 @@
 'use strict';
 
 var Config = require('../lib/config');
+var Logger = require('../lib/logger');
 var helpers = require('./helpers');
-var chai = require('chai');
 var path = require('path');
 
+var sinon = require('sinon');
+var chai = require('chai');
 var expect = chai.expect;
-chai.should();
 
 describe('Config', function() {
-  var newConfig;
-
   before(function() {
     delete process.env.HUBOT_SLACK_GITHUB_ISSUES_CONFIG_PATH;
   });
@@ -23,14 +22,11 @@ describe('Config', function() {
     delete process.env.HUBOT_SLACK_GITHUB_ISSUES_CONFIG_PATH;
   });
 
-  newConfig = function(config) {
-    return new Config(config);
-  };
-
   it('should validate a valid configuration', function() {
-    var baseConfig = helpers.baseConfig(),
-        config = new Config(baseConfig);
-    expect(JSON.stringify(config)).to.equal(JSON.stringify(baseConfig));
+    var configData = helpers.baseConfig(),
+        config = new Config(configData);
+
+    expect(JSON.stringify(config)).to.equal(JSON.stringify(configData));
   });
 
   it('should raise errors for missing required fields', function() {
@@ -43,78 +39,123 @@ describe('Config', function() {
         ],
         errorMessage = 'Invalid configuration:\n  ' + errors.join('\n  ');
 
-    expect(function() { newConfig({}); }).to.throw(Error, errorMessage);
+    expect(function() { return new Config({}); }).to.throw(Error, errorMessage);
   });
 
-  it('should raise errors for missing required rules fields', function() {
-    var config = helpers.baseConfig(),
-        errors,
-        errorMessage;
+  it('should validate optional config fields', function() {
+    var configData = helpers.baseConfig(),
+        config;
+    configData.githubApiBaseUrl = 'http://localhost/github/';
+    configData.slackApiBaseUrl = 'http://localhost/slack/';
+    configData.rules[0].channelNames = ['hub'];
 
-    delete config.rules[0].reactionName;
-    delete config.rules[0].githubRepository;
-
-    errors = [
-      'rule 0 missing reactionName',
-      'rule 0 missing githubRepository'
-    ];
-    errorMessage = 'Invalid configuration:\n  ' + errors.join('\n  ');
-
-    expect(function() { newConfig(config); }).to.throw(Error, errorMessage);
+    config = new Config(configData);
+    expect(JSON.stringify(config)).to.equal(JSON.stringify(configData));
   });
 
-  it('should raise errors for unknown properties', function() {
-    var config = helpers.baseConfig(),
-        errors,
-        errorMessage;
+  it('should raise errors for unknown top-level properties', function() {
+    var configData = helpers.baseConfig(),
+        errors = [
+          'unknown property foo',
+          'unknown property baz',
+          'rule 0 contains unknown property xyzzy',
+          'rule 3 contains unknown property quux'
+        ],
+        errorMessage = 'Invalid configuration:\n  ' + errors.join('\n  ');
 
-    config.foo = {};
-    config.bar = {};
-    config.rules[0].baz = {};
-    config.rules.push({
+    configData.foo = 'bar';
+    configData.baz = ['quux'];
+    configData.rules[0].xyzzy = 'plugh';
+    configData.rules.push({
       'reactionName': 'smiley',
       'githubRepository': '18F/hubot-slack-github-issues',
       'channelNames': ['hub'],
       'quux': {}
     });
 
-    errors = [
-      'unknown property foo',
-      'unknown property bar',
-      'rule 0 contains unknown property baz',
-      'rule 3 contains unknown property quux',
-    ];
-    errorMessage = 'Invalid configuration:\n  ' + errors.join('\n  ');
+    expect(function() { return new Config(configData); })
+      .to.throw(Error, errorMessage);
+  });
 
-    expect(function() { newConfig(config); }).to.throw(Error, errorMessage);
+  it('should raise errors for missing required rules fields', function() {
+    var configData = helpers.baseConfig(),
+        errors = [
+          'rule 0 missing reactionName',
+          'rule 2 missing githubRepository'
+        ],
+        errorMessage = 'Invalid configuration:\n  ' + errors.join('\n  ');
+
+    delete configData.rules[0].reactionName;
+    delete configData.rules[2].githubRepository;
+
+    expect(function() { return new Config(configData); })
+      .to.throw(Error, errorMessage);
   });
 
   it('should load from HUBOT_SLACK_GITHUB_ISSUES_CONFIG_PATH', function() {
-    var baseConfig = helpers.baseConfig(),
+    var testConfig = require('./helpers/test-config.json'),
+        logger = new Logger(console),
+        configPath = path.join(__dirname, 'helpers', 'test-config.json'),
         config;
 
-    process.env.HUBOT_SLACK_GITHUB_ISSUES_CONFIG_PATH = path.join(
-      __dirname, 'helpers', 'test-config.json');
-    config = newConfig();
-
-    expect(JSON.stringify(config)).to.eql(JSON.stringify(baseConfig));
+    process.env.HUBOT_SLACK_GITHUB_ISSUES_CONFIG_PATH = configPath;
+    sinon.stub(logger, 'info');
+    config = new Config(null, logger);
+    expect(JSON.stringify(config)).to.eql(JSON.stringify(testConfig));
+    expect(logger.info.args).to.eql([
+      [null, 'reading configuration from', configPath]
+    ]);
   });
 
   it('should load from config/slack-github-issues.json by default', function() {
-    var defaultConfig = require('../config/slack-github-issues.json'),
+    var testConfig = require('../config/slack-github-issues.json'),
+        logger = new Logger(console),
+        configPath = path.join('config', 'slack-github-issues.json'),
         config;
 
-    config = newConfig();
-    expect(JSON.stringify(config)).to.eql(JSON.stringify(defaultConfig));
+    sinon.stub(logger, 'info');
+    config = new Config(null, logger);
+    expect(JSON.stringify(config)).to.eql(JSON.stringify(testConfig));
+    expect(logger.info.args).to.eql([
+      [null, 'reading configuration from', configPath]
+    ]);
+  });
+
+  it('should raise an error if the config file does not exist', function() {
+    var logger = new Logger(console),
+        configPath = path.join(__dirname, 'nonexistent-config-file'),
+        errorMessage = 'failed to load configuration from ' + configPath + ': ';
+
+    process.env.HUBOT_SLACK_GITHUB_ISSUES_CONFIG_PATH = configPath;
+    sinon.stub(logger, 'info');
+    expect(function() { return new Config(null, logger); })
+      .to.throw(Error, errorMessage);
+    expect(logger.info.args).to.eql([
+      [null, 'reading configuration from', configPath]
+    ]);
+  });
+
+  it('should raise an error if the config file isn\'t valid JSON', function() {
+    var logger = new Logger(console),
+        errorMessage = 'failed to load configuration from ' + __filename +
+          ': invalid JSON: ';
+
+    process.env.HUBOT_SLACK_GITHUB_ISSUES_CONFIG_PATH = __filename;
+    sinon.stub(logger, 'info');
+    expect(function() { return new Config(null, logger); })
+      .to.throw(Error, errorMessage);
+    expect(logger.info.args).to.eql([
+      [null, 'reading configuration from', __filename]
+    ]);
   });
 
   describe('checkForMisconfiguredRules', function() {
     it('should detect when rules are not sorted by reactionName', function() {
-      var config = helpers.baseConfig(),
+      var configData = helpers.baseConfig(),
           errorMessage,
           NUM_SPACES = 2;
 
-      config.rules = [
+      configData.rules = [
         { reactionName: 'smiley',
           githubRepository: 'hubot-slack-github-issues'
         },
@@ -131,15 +172,16 @@ describe('Config', function() {
         JSON.stringify(helpers.baseConfig().rules, null, NUM_SPACES)
           .replace(/\n/g, '\n  ');
 
-      expect(function() { newConfig(config); }).to.throw(errorMessage);
+      expect(function() { return new Config(configData); })
+        .to.throw(errorMessage);
     });
 
     it('should detect when rules are not sorted by channelNames', function() {
-      var config = helpers.baseConfig(),
+      var configData = helpers.baseConfig(),
           errorMessage,
           NUM_SPACES = 2;
 
-      config.rules = [
+      configData.rules = [
         { reactionName: 'evergreen_tree',
           githubRepository: 'handbook',
         },
@@ -156,7 +198,8 @@ describe('Config', function() {
         JSON.stringify(helpers.baseConfig().rules, null, NUM_SPACES)
           .replace(/\n/g, '\n  ');
 
-      expect(function() { newConfig(config); }).to.throw(errorMessage);
+      expect(function() { return new Config(configData); })
+        .to.throw(errorMessage);
     });
 
     it('should detect when rules are not sorted by repository', function() {
@@ -190,17 +233,18 @@ describe('Config', function() {
         JSON.stringify(correctConfig.rules, null, NUM_SPACES)
           .replace(/\n/g, '\n  ');
 
-      expect(function() { newConfig(errorConfig); }).to.throw(errorMessage);
+      expect(function() { return new Config(errorConfig); })
+        .to.throw(errorMessage);
     });
 
     it('should detect unsorted channel names', function() {
-      var config = helpers.baseConfig(),
+      var configData = helpers.baseConfig(),
           errorMessage;
 
-      config.rules[0].githubRepository = 'guides';
-      config.rules[0].channelNames = ['wg-testing', 'wg-documentation'];
-      config.rules[1].githubRepository = 'handbook';
-      config.rules[1].channelNames = ['hub', 'handbook'];
+      configData.rules[0].githubRepository = 'guides';
+      configData.rules[0].channelNames = ['wg-testing', 'wg-documentation'];
+      configData.rules[1].githubRepository = 'handbook';
+      configData.rules[1].channelNames = ['hub', 'handbook'];
       errorMessage = 'Invalid configuration:\n' +
         '  channelNames for evergreen_tree rule 0 are not sorted; expected:\n' +
         '    wg-documentation\n' +
@@ -208,52 +252,56 @@ describe('Config', function() {
         '  channelNames for evergreen_tree rule 1 are not sorted; expected:\n' +
         '    handbook\n' +
         '    hub';
-      expect(function() { newConfig(config); }).to.throw(errorMessage);
+      expect(function() { return new Config(configData); })
+        .to.throw(errorMessage);
     });
 
     it('should detect duplicate repos for same reaction', function() {
-      var config = helpers.baseConfig(),
+      var configData = helpers.baseConfig(),
           errorMessage;
 
-      config.rules.forEach(function(rule) {
+      configData.rules.forEach(function(rule) {
         rule.githubRepository = 'handbook';
       });
       errorMessage = 'Invalid configuration:\n' +
         '  duplicate repositories for evergreen_tree rules:\n' +
         '    handbook';
-      expect(function() { newConfig(config); }).to.throw(errorMessage);
+      expect(function() { return new Config(configData); })
+        .to.throw(errorMessage);
     });
 
     it('should detect duplicate repos and channels for reaction', function() {
-      var config = helpers.baseConfig(),
+      var configData = helpers.baseConfig(),
           errorMessage;
 
-      config.rules.forEach(function(rule) {
+      configData.rules.forEach(function(rule) {
         rule.githubRepository = 'handbook';
         rule.channelNames = ['hub'];
       });
 
-      config.rules[0].channelNames.unshift('handbook');
-      config.rules[1].channelNames.push('wg-documentation');
+      configData.rules[0].channelNames.unshift('handbook');
+      configData.rules[1].channelNames.push('wg-documentation');
       errorMessage = 'Invalid configuration:\n' +
         '  duplicate repositories for evergreen_tree rules:\n' +
         '    handbook\n' +
         '  duplicate channels for evergreen_tree rules:\n' +
         '    hub';
-      expect(function() { newConfig(config); }).to.throw(errorMessage);
+      expect(function() { return new Config(configData); })
+        .to.throw(errorMessage);
     });
 
     it('should detect multiple all-channel rules for reaction', function() {
-      var config = helpers.baseConfig(),
+      var configData = helpers.baseConfig(),
           errorMessage;
 
-      config.rules[0].githubRepository = 'handbook';
-      delete config.rules[0].channelNames;
-      config.rules[1].githubRepository = 'hub';
+      configData.rules[0].githubRepository = 'handbook';
+      delete configData.rules[0].channelNames;
+      configData.rules[1].githubRepository = 'hub';
 
       errorMessage = 'Invalid configuration:\n' +
         '  multiple all-channel rules defined for evergreen_tree';
-      expect(function() { newConfig(config); }).to.throw(errorMessage);
+      expect(function() { return new Config(configData); })
+        .to.throw(errorMessage);
     });
   });
 });

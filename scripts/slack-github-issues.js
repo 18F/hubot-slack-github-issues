@@ -5,32 +5,36 @@
 //
 // Configuration:
 //   HUBOT_SLACK_GITHUB_ISSUES_CONFIG_PATH
-//
-// Commands:
-//   hubot foobar - baz quux
-//
-// Author:
-//   mbland
 
 'use strict';
 
 var Config = require('../lib/config');
 var SlackClient = require('../lib/slack-client');
 var GitHubClient = require('../lib/github-client');
+var Logger = require('../lib/logger');
 var Middleware = require('../lib/middleware');
-var log = require('../lib/log');
 
 module.exports = function(robot) {
-  var config = new Config(),
-      impl = new Middleware(
-        config,
-        new SlackClient(robot.adapter.client, config),
-        new GitHubClient(config)),
-      middleware = function(context, next, done) {
-        impl.execute(context, next, done);
-      };
+  var logger, config, impl, middleware;
 
-  middleware.impl = impl;
-  robot.receiveMiddleware(middleware);
-  log('registered receiveMiddleware');
+  try {
+    logger = new Logger(robot.logger);
+    config = new Config(null, logger);
+    impl = new Middleware(
+      config,
+      new SlackClient(robot.adapter.client, config),
+      new GitHubClient(config),
+      logger);
+
+    middleware = function(context, next, done) {
+      impl.execute(context, next, done);
+    };
+    middleware.impl = impl;
+    robot.receiveMiddleware(middleware);
+    logger.info(null, 'registered receiveMiddleware');
+
+  } catch (err) {
+    logger.error(null, 'receiveMiddleware registration failed:',
+      err instanceof Error ? err.message : err);
+  }
 };
