@@ -2,9 +2,11 @@
 'use strict';
 
 var path = require('path');
-var log = require('./lib/log');
+var Logger = require('./lib/logger');
 
 module.exports = function(robot) {
-  log('loading');
+  var logger = new Logger(robot.logger);
+
+  logger.info(null, 'loading');
   robot.loadFile(path.resolve(__dirname, 'scripts'), 'slack-github-issues.js');
 };
