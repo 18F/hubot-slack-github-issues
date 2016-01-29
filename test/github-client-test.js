@@ -49,11 +49,13 @@ describe('GitHubClient', function() {
     it('should parse the local server URL', function() {
       url.format(githubClient.baseurl).should.eql(
         githubApiServer.address() + '/');
+      githubClient.requestFactory.globalAgent.protocol.should.eql('http:');
     });
 
     it('should parse API_BASE_URL if config base URL undefined', function() {
       var githubClient = new GitHubClient(helpers.baseConfig());
       url.format(githubClient.baseurl).should.eql(GitHubClient.API_BASE_URL);
+      githubClient.requestFactory.globalAgent.protocol.should.eql('https:');
     });
   });
 
