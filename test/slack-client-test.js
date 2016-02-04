@@ -49,11 +49,13 @@ describe('SlackClient', function() {
     it('should parse the local server URL', function() {
       url.format(slackClient.baseurl).should.eql(
         slackApiServer.address() + '/api/');
+      slackClient.requestFactory.globalAgent.protocol.should.eql('http:');
     });
 
     it('should parse API_BASE_URL if config base URL undefined', function() {
       var slackClient = new SlackClient(undefined, helpers.baseConfig());
       url.format(slackClient.baseurl).should.eql(SlackClient.API_BASE_URL);
+      slackClient.requestFactory.globalAgent.protocol.should.eql('https:');
     });
   });
 
