@@ -1,5 +1,3 @@
-/* jshint node: true */
-
 'use strict';
 
 var testConfig = require('./test-config.json');
@@ -65,7 +63,7 @@ exports = module.exports = {
       timestamp: exports.TIMESTAMP,
       url: exports.PERMALINK,
       date: new Date(1360782804.083113 * 1000),
-      title: 'Update from #handbook at Wed, 13 Feb 2013 19:13:24 GMT',
+      title: 'Update from #handbook at Wed, 13 Feb 2013 19:13:24 GMT'
     };
   },
 

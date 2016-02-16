@@ -1,5 +1,3 @@
-// jshint node: true
-//
 // Description:
 //   Uses the Slack Real Time Messaging API to file GitHub issues
 //

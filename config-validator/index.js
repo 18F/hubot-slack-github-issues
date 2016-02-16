@@ -1,4 +1,4 @@
-/* jshint node: true */
+/* eslint-env browser */
 
 'use strict';
 
@@ -9,12 +9,11 @@ var NBSP_REGEX = / {2}/g;
 window.validateConfig = function() {
   var configInput = document.getElementById('config-input'),
       resultText = document.getElementById('result-text'),
-      config,
       resultMsg = '';
 
   try {
     if (configInput.value.length !== 0) {
-      config = new Config(JSON.parse(configInput.value));
+      new Config(JSON.parse(configInput.value));
       resultMsg = 'The configuration is valid.';
     } else {
       resultMsg = 'Please enter a JSON configuration object.';

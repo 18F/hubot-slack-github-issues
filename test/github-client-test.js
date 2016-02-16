@@ -1,7 +1,3 @@
-/* jshint node: true */
-/* jshint mocha: true */
-/* jshint expr: true */
-
 'use strict';
 
 var GitHubClient = require('../lib/github-client');
@@ -71,7 +67,7 @@ describe('GitHubClient', function() {
     config.githubApiBaseUrl = 'http://localhost';
     githubClient = new GitHubClient(config);
 
-  return githubClient.fileNewIssue(helpers.metadata(), 'handbook')
+    return githubClient.fileNewIssue(helpers.metadata(), 'handbook')
       .should.be.rejectedWith('failed to make GitHub API request:');
   });
 

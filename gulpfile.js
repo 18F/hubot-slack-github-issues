@@ -1,9 +1,7 @@
-/* jshint node: true */
-
 var gulp = require('gulp');
 var yargs = require('yargs');
 var mocha = require('gulp-mocha');
-var jshint = require('gulp-jshint');
+var eslint = require('gulp-eslint');
 var istanbul = require('gulp-istanbul');
 
 var TEST_DEPENDENCIES = getTestDependencies();
@@ -66,6 +64,6 @@ gulp.task('lint', function() {
   return gulp.src([
     'bin/*', '*.js', 'scripts/**/*.js', 'lib/**/*.js', 'test/**/*.js',
     'config-validator/index.js'])
-    .pipe(jshint())
-    .pipe(jshint.reporter('default'));
+    .pipe(eslint())
+    .pipe(eslint.format());
 });

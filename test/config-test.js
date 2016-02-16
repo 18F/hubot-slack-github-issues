@@ -1,7 +1,3 @@
-/* jshint node: true */
-/* jshint mocha: true */
-/* jshint expr: true */
-
 'use strict';
 
 var Config = require('../lib/config');
@@ -164,7 +160,7 @@ describe('Config', function() {
           channelNames: ['hub']
         },
         { reactionName: 'evergreen_tree',
-          githubRepository: 'handbook',
+          githubRepository: 'handbook'
         }
       ];
       errorMessage = 'Invalid configuration:\n' +
@@ -183,7 +179,7 @@ describe('Config', function() {
 
       configData.rules = [
         { reactionName: 'evergreen_tree',
-          githubRepository: 'handbook',
+          githubRepository: 'handbook'
         },
         { reactionName: 'evergreen_tree',
           githubRepository: 'hub',
@@ -225,7 +221,7 @@ describe('Config', function() {
       errorConfig.rules = [
         correctConfig.rules[1],
         correctConfig.rules[0],
-        correctConfig.rules[2],
+        correctConfig.rules[2]
       ];
 
       errorMessage = 'Invalid configuration:\n' +
