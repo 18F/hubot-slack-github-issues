@@ -164,8 +164,8 @@ describe('Integration test', function() {
     }
   });
 
-  it('should create a GitHub issue given a valid reaction', function(done) {
-    sendReaction(helpers.REACTION).should.be.fulfilled.then(function() {
+  it('should create a GitHub issue given a valid reaction', function() {
+    return sendReaction(helpers.REACTION).should.be.fulfilled.then(function() {
       room.messages.should.eql([
         ['mbland', 'evergreen_tree'],
         ['hubot', '@mbland created: ' + helpers.ISSUE_URL]
@@ -179,17 +179,17 @@ describe('Integration test', function() {
           'created: ' + helpers.ISSUE_URL
         ]))
       );
-    }).should.notify(done);
+    });
   });
 
-  it('should fail to create a GitHub issue', function(done) {
+  it('should fail to create a GitHub issue', function() {
     var payload = { message: 'test failure' },
         url = '/github/repos/18F/handbook/issues',
         response = apiStubServer.urlsToResponses[url];
 
     response.statusCode = 500;
     response.payload = payload;
-    sendReaction(helpers.REACTION).should.be.fulfilled.then(function() {
+    return sendReaction(helpers.REACTION).should.be.fulfilled.then(function() {
       var errorReply = 'failed to create a GitHub issue in ' +
             '18F/handbook: received 500 response from GitHub API: ' +
             JSON.stringify(payload),
@@ -207,10 +207,10 @@ describe('Integration test', function() {
       ]));
       logMessages.push('ERROR ' + helpers.MESSAGE_ID + ': ' + errorReply);
       logHelper.filteredMessages().should.eql(logMessages);
-    }).should.notify(done);
+    });
   });
 
-  it('should ignore a message receiving an unknown reaction', function(done) {
+  it('should ignore a message receiving an unknown reaction', function() {
     Object.keys(apiStubServer.urlsToResponses).forEach(function(url) {
       var response = apiStubServer.urlsToResponses[url];
 
@@ -218,9 +218,9 @@ describe('Integration test', function() {
       response.payload = { message: 'should not happen' };
     });
 
-    sendReaction('sad-face').should.be.fulfilled.then(function() {
+    return sendReaction('sad-face').should.be.fulfilled.then(function() {
       room.messages.should.eql([['mbland', 'sad-face']]);
       logHelper.filteredMessages().should.eql(initLogMessages());
-    }).should.notify(done);
+    });
   });
 });
