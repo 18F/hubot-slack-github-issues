@@ -1,7 +1,3 @@
-/* jshint node: true */
-/* jshint mocha: true */
-/* jshint expr: true */
-
 'use strict';
 
 var SlackClient = require('../lib/slack-client');

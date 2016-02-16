@@ -15,7 +15,7 @@ var usage = [
   '  -h, --help, help        show this help',
   '  -v, --version, version  show version info',
   '  print-template          print an example slack-github-issues.json config',
-  '  validate <config.json>  validate the specified config file',
+  '  validate <config.json>  validate the specified config file'
 ].join('\n');
 
 var showHelp, showVersion;
@@ -48,8 +48,7 @@ function exitWithError(message) {
 if (option === 'validate') {
   var configPath = process.argv[3],
       fullConfigPath = path.resolve(configPath),
-      configData,
-      configuration;
+      configData;
 
   if (configPath === undefined) {
     exitWithError('validate: no config file path specified');
@@ -61,7 +60,7 @@ if (option === 'validate') {
 
   try {
     configData = require(fullConfigPath);
-    configuration = new Config(configData);
+    new Config(configData);
   } catch (err) {
     exitWithError(err.message);
   }

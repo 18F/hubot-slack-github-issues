@@ -1,5 +1,3 @@
-/* jshint node: true */
-
 var sinon = require('sinon');
 
 var LOGGER_PREFIX = require('../../lib/logger').PREFIX;

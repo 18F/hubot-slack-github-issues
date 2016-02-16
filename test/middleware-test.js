@@ -1,7 +1,3 @@
-/* jshint node: true */
-/* jshint mocha: true */
-/* jshint expr: true */
-
 'use strict';
 
 var Middleware = require('../lib/middleware');
@@ -99,7 +95,7 @@ describe('Middleware', function() {
   });
 
   describe('execute', function() {
-    var context, next, hubotDone, message, checkErrorResponse;
+    var context, next, hubotDone, checkErrorResponse;
 
     beforeEach(function() {
       context = {
@@ -110,7 +106,6 @@ describe('Middleware', function() {
       };
       next = sinon.spy();
       hubotDone = sinon.spy();
-      message = helpers.fullReactionAddedMessage();
 
       slackClient = sinon.stub(slackClient);
       githubClient = sinon.stub(githubClient);
@@ -129,20 +124,20 @@ describe('Middleware', function() {
     it('should receive a message and file an issue', function(done) {
       middleware.execute(context, next, hubotDone)
         .should.become(helpers.ISSUE_URL).then(function() {
-        var matchingRule = new Rule(helpers.baseConfig().rules[1]);
+          var matchingRule = new Rule(helpers.baseConfig().rules[1]);
 
-        context.response.reply.args.should.eql([
-          ['created: ' + helpers.ISSUE_URL]
-        ]);
-        next.calledWith(hubotDone).should.be.true;
-        logger.info.args.should.eql([
-          helpers.logArgs('matches rule:', matchingRule),
-          helpers.logArgs('getting reactions for', helpers.PERMALINK),
-          helpers.logArgs('making GitHub request for', helpers.PERMALINK),
-          helpers.logArgs('adding', helpers.baseConfig().successReaction),
-          helpers.logArgs('created: ' + helpers.ISSUE_URL)
-        ]);
-      }).should.notify(done);
+          context.response.reply.args.should.eql([
+            ['created: ' + helpers.ISSUE_URL]
+          ]);
+          next.calledWith(hubotDone).should.be.true;
+          logger.info.args.should.eql([
+            helpers.logArgs('matches rule:', matchingRule),
+            helpers.logArgs('getting reactions for', helpers.PERMALINK),
+            helpers.logArgs('making GitHub request for', helpers.PERMALINK),
+            helpers.logArgs('adding', helpers.baseConfig().successReaction),
+            helpers.logArgs('created: ' + helpers.ISSUE_URL)
+          ]);
+        }).should.notify(done);
     });
 
     it('should ignore messages that do not match', function() {
@@ -186,13 +181,13 @@ describe('Middleware', function() {
 
       middleware.execute(context, next, hubotDone)
         .should.be.rejectedWith('already processed').then(function() {
-        slackClient.getReactions.calledOnce.should.be.true;
-        githubClient.fileNewIssue.called.should.be.false;
-        slackClient.addSuccessReaction.called.should.be.false;
-        context.response.reply.called.should.be.false;
-        logger.info.args.should.include.something.that.deep.equals(
-          helpers.logArgs('already processed ' + helpers.PERMALINK));
-      }).should.notify(done);
+          slackClient.getReactions.calledOnce.should.be.true;
+          githubClient.fileNewIssue.called.should.be.false;
+          slackClient.addSuccessReaction.called.should.be.false;
+          context.response.reply.called.should.be.false;
+          logger.info.args.should.include.something.that.deep.equals(
+            helpers.logArgs('already processed ' + helpers.PERMALINK));
+        }).should.notify(done);
     });
 
     checkErrorResponse = function(errorMessage) {
@@ -211,11 +206,11 @@ describe('Middleware', function() {
 
       middleware.execute(context, next, hubotDone)
         .should.be.rejectedWith(errorMessage).then(function() {
-        slackClient.getReactions.calledOnce.should.be.true;
-        githubClient.fileNewIssue.called.should.be.false;
-        slackClient.addSuccessReaction.called.should.be.false;
-        checkErrorResponse(errorMessage);
-      }).should.notify(done);
+          slackClient.getReactions.calledOnce.should.be.true;
+          githubClient.fileNewIssue.called.should.be.false;
+          slackClient.addSuccessReaction.called.should.be.false;
+          checkErrorResponse(errorMessage);
+        }).should.notify(done);
     });
 
     it('should get reactions but fail to file an issue', function(done) {
@@ -227,11 +222,11 @@ describe('Middleware', function() {
 
       middleware.execute(context, next, hubotDone)
         .should.be.rejectedWith(errorMessage).then(function() {
-        slackClient.getReactions.calledOnce.should.be.true;
-        githubClient.fileNewIssue.calledOnce.should.be.true;
-        slackClient.addSuccessReaction.called.should.be.false;
-        checkErrorResponse(errorMessage);
-      }).should.notify(done);
+          slackClient.getReactions.calledOnce.should.be.true;
+          githubClient.fileNewIssue.calledOnce.should.be.true;
+          slackClient.addSuccessReaction.called.should.be.false;
+          checkErrorResponse(errorMessage);
+        }).should.notify(done);
     });
 
     it('should file an issue but fail to add a reaction', function(done) {
@@ -244,11 +239,11 @@ describe('Middleware', function() {
 
       middleware.execute(context, next, hubotDone)
         .should.be.rejectedWith(errorMessage).then(function() {
-        slackClient.getReactions.calledOnce.should.be.true;
-        githubClient.fileNewIssue.calledOnce.should.be.true;
-        slackClient.addSuccessReaction.calledOnce.should.be.true;
-        checkErrorResponse(errorMessage);
-      }).should.notify(done);
+          slackClient.getReactions.calledOnce.should.be.true;
+          githubClient.fileNewIssue.calledOnce.should.be.true;
+          slackClient.addSuccessReaction.calledOnce.should.be.true;
+          checkErrorResponse(errorMessage);
+        }).should.notify(done);
     });
 
     it('should catch and log unanticipated errors', function() {
