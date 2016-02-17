@@ -121,8 +121,8 @@ describe('Middleware', function() {
         .returns(Promise.resolve(helpers.ISSUE_URL));
     });
 
-    it('should receive a message and file an issue', function(done) {
-      middleware.execute(context, next, hubotDone)
+    it('should receive a message and file an issue', function() {
+      return middleware.execute(context, next, hubotDone)
         .should.become(helpers.ISSUE_URL).then(function() {
           var matchingRule = new Rule(helpers.baseConfig().rules[1]);
 
@@ -137,7 +137,7 @@ describe('Middleware', function() {
             helpers.logArgs('adding', helpers.baseConfig().successReaction),
             helpers.logArgs('created: ' + helpers.ISSUE_URL)
           ]);
-        }).should.notify(done);
+        });
     });
 
     it('should ignore messages that do not match', function() {
@@ -147,29 +147,28 @@ describe('Middleware', function() {
     });
 
     it('should not file another issue for the same message when ' +
-      'one is in progress', function(done) {
+      'one is in progress', function() {
       var result;
 
       result = middleware.execute(context, next, hubotDone);
-      if (middleware.execute(context, next, hubotDone) !== undefined) {
-        return done(new Error('middleware.execute did not prevent filing a ' +
-          'second issue when one was already in progress'));
-      }
+      expect(middleware.execute(context, next, hubotDone)).to.eql(undefined,
+        'middleware.execute did not prevent filing a second issue ' +
+        'when one was already in progress');
 
-      result.should.become(helpers.ISSUE_URL).then(function() {
+      return result.should.become(helpers.ISSUE_URL).then(function() {
         logger.info.args.should.include.something.that.deep.equals(
           helpers.logArgs('already in progress'));
 
         // Make another call to ensure that the ID is cleaned up. Normally the
         // message will have a successReaction after the first successful
         // request, but we'll test that in another case.
-        middleware.execute(context, next, hubotDone)
-          .should.become(helpers.ISSUE_URL).should.notify(done);
+        return middleware.execute(context, next, hubotDone)
+          .should.become(helpers.ISSUE_URL);
       });
     });
 
     it('should not file another issue for the same message when ' +
-      'one is already filed ', function(done) {
+      'one is already filed ', function() {
       var message = helpers.messageWithReactions();
 
       message.message.reactions.push({
@@ -179,7 +178,7 @@ describe('Middleware', function() {
       });
       slackClient.getReactions.returns(Promise.resolve(message));
 
-      middleware.execute(context, next, hubotDone)
+      return middleware.execute(context, next, hubotDone)
         .should.be.rejectedWith('already processed').then(function() {
           slackClient.getReactions.calledOnce.should.be.true;
           githubClient.fileNewIssue.called.should.be.false;
@@ -187,7 +186,7 @@ describe('Middleware', function() {
           context.response.reply.called.should.be.false;
           logger.info.args.should.include.something.that.deep.equals(
             helpers.logArgs('already processed ' + helpers.PERMALINK));
-        }).should.notify(done);
+        });
     });
 
     checkErrorResponse = function(errorMessage) {
@@ -197,39 +196,39 @@ describe('Middleware', function() {
       logger.error.args.should.have.deep.property('[0][1]', errorMessage);
     };
 
-    it('should receive a message but fail to get reactions', function(done) {
+    it('should receive a message but fail to get reactions', function() {
       var errorMessage = 'failed to get reactions for ' + helpers.PERMALINK +
         ': test failure';
 
       slackClient.getReactions
         .returns(Promise.reject(new Error('test failure')));
 
-      middleware.execute(context, next, hubotDone)
+      return middleware.execute(context, next, hubotDone)
         .should.be.rejectedWith(errorMessage).then(function() {
           slackClient.getReactions.calledOnce.should.be.true;
           githubClient.fileNewIssue.called.should.be.false;
           slackClient.addSuccessReaction.called.should.be.false;
           checkErrorResponse(errorMessage);
-        }).should.notify(done);
+        });
     });
 
-    it('should get reactions but fail to file an issue', function(done) {
+    it('should get reactions but fail to file an issue', function() {
       var errorMessage = 'failed to create a GitHub issue in 18F/handbook: ' +
         'test failure';
 
       githubClient.fileNewIssue
         .returns(Promise.reject(new Error('test failure')));
 
-      middleware.execute(context, next, hubotDone)
+      return middleware.execute(context, next, hubotDone)
         .should.be.rejectedWith(errorMessage).then(function() {
           slackClient.getReactions.calledOnce.should.be.true;
           githubClient.fileNewIssue.calledOnce.should.be.true;
           slackClient.addSuccessReaction.called.should.be.false;
           checkErrorResponse(errorMessage);
-        }).should.notify(done);
+        });
     });
 
-    it('should file an issue but fail to add a reaction', function(done) {
+    it('should file an issue but fail to add a reaction', function() {
       var errorMessage = 'created ' + helpers.ISSUE_URL +
         ' but failed to add ' + helpers.baseConfig().successReaction +
         ': test failure';
@@ -237,13 +236,13 @@ describe('Middleware', function() {
       slackClient.addSuccessReaction
         .returns(Promise.reject(new Error('test failure')));
 
-      middleware.execute(context, next, hubotDone)
+      return middleware.execute(context, next, hubotDone)
         .should.be.rejectedWith(errorMessage).then(function() {
           slackClient.getReactions.calledOnce.should.be.true;
           githubClient.fileNewIssue.calledOnce.should.be.true;
           slackClient.addSuccessReaction.calledOnce.should.be.true;
           checkErrorResponse(errorMessage);
-        }).should.notify(done);
+        });
     });
 
     it('should catch and log unanticipated errors', function() {
