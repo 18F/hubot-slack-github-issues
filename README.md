@@ -1,10 +1,5 @@
 # hubot-slack-github-issues
 
-[![NPM](https://nodei.co/npm/hubot-slack-github-issues.png?compact=true)](https://nodei.co/npm/hubot-slack-github-issues/)<br/>
-[![Build Status](https://travis-ci.org/18F/hubot-slack-github-issues.svg?branch=master)](https://travis-ci.org/18F/hubot-slack-github-issues)
-[![Code Climate](https://codeclimate.com/github/18F/hubot-slack-github-issues/badges/gpa.svg)](https://codeclimate.com/github/18F/hubot-slack-github-issues)
-[![Coverage Status](https://coveralls.io/repos/18F/hubot-slack-github-issues/badge.svg?branch=master&service=github)](https://coveralls.io/github/18F/hubot-slack-github-issues?branch=master)
-
 When a [Slack](https://slack.com/) chat message receives a specific emoji reaction, this [Hubot](https://hubot.github.com/) plugin creates a [GitHub](https://github.com/) issue with a link to that message.
 
 This plugin is for teams who use Slack to communicate and GitHub to track issues. It provides an easy way to file an issue (just add a specific emoji to a message), which helps team members quickly document or act upon important parts of conversations. For example, 18F [tags Slack messages with an evergreen tree](https://18f.gsa.gov/2015/12/08/using-emoji-for-knowledge-sharing/) when we notice future new hires should see that information.
@@ -35,6 +30,8 @@ message](https://api.slack.com/methods/reactions.add) with an emoji indicating
 success. Finally, it will post the issue URL to the channel in which the
 message appeared.
 
+This script is a wrapper around [slack-github-issues](https://github.com/mbland/slack-github-issues).
+
 ## Installation
 
 Here are instructions for installing this plugin and putting it into use. If you'd like to set up a local copy for development without deploying the plugin, follow step #1 and then skip to the instructions at [Developing](#developing) (you don't need to create a Hubot instance, a Slack bot user, a GitHub user, a configuration file, or environment variables until you intend to deploy the script).
@@ -49,21 +46,8 @@ Here are instructions for installing this plugin and putting it into use. If you
 
 1. In your Hubot repository, run:
    ```bash
-   $ npm install '18f/hubot-slack#3.4.2-handle-reaction-added' \
-       hubot-slack-github-issues --save
+   $ npm install hubot-slack-github-issues --save
    ```
-   
-   **Note:** This plugin depends upon
-[18F/hubot-slack#3.4.2-handle-reaction-added](https://github.com/18F/hubot-slack/tree/3.4.2-handle-reaction-added),
-which in turn depends upon
-[18F/node-slack-client#1.5.0-handle-reaction-added](https://github.com/18F/node-slack-client/tree/1.5.0-handle-reaction-added).
-These packages are custom forks of the
-[hubot-slack](https://www.npmjs.com/package/hubot-slack) and 
-[slack-client](https://www.npmjs.com/package/slack-client) packages that have
-had support for the [`reaction_added`
-event](https://api.slack.com/events/reaction_added) patched in. When those official packages have been updated to include `reaction_added`
-support, this plugin will be updated to use those packages instead of the
-custom versions.
 
 1. Include the plugin in `external-scripts.json` in your Hubot repository:
    ```json
@@ -93,7 +77,8 @@ to each repository. Alternatively, you can [add your GitHub user to a
 team](https://help.github.com/articles/adding-organization-members-to-a-team/)
 with access to private repositories instead.
 
-1. Configure the plugin by [creating a JSON configuration file with these items](#configuration) and [setting these environment variables](#environment-variables). Validate the configuration by running `hubot-slack-github-issues validate path-to-config.json`.
+1. Configure the plugin by [creating a JSON configuration file with these items](https://github.com/mbland/slack-github-issues#configuration)
+and [setting these environment variables](https://github.com/mbland/slack-github-issues#environment-variables). Validate the configuration by running `hubot-slack-github-issues validate path-to-config.json`.
 
 1. Run `bin/hubot` or otherwise deploy to your preferred environment.
 
@@ -209,46 +194,7 @@ in a good state:
 ```sh
 $ cd hubot-slack-github-issues
 $ npm install
-$ npm run lint
-$ npm test
-$ test/hubot-smoke-test.bash
 ```
-
-After making changes, run `npm run lint` and `npm test` frequently. Add new
-tests in [the `test` directory](./test/) for any new functionality, or to
-reproduce any bugs you intend to fix. Run `test/hubot-smoke-test.bash`
-occasionally to ensure that the script can be loaded by Hubot.
-
-To run a subset of the tests, use the following syntax, replacing `'Config'`
-with any string matching the tests you wish to run:
-
-```sh
-$ npm test -- --grep 'Config'
-```
-
-To generate a local coverage report, run:
-
-```sh
-$ COVERAGE=true npm test
-```
-
-This will place coverage data into the `coverage/` directory and generate an
-HTML report as `coverage/lcov-report/index.html`.
-
-### Browser-based config validator
-
-The [`config-validator` directory](config-validator/) contains a very tiny
-web-based validator. To build it, run `npm run browserify-validator`. This
-will create the `config-validator/config-validator.js` bundle. You can then
-view the validator in your browser by navigating to the
-[`config-validator/index.html`](config-validator/index.html) file within your
-local clone of the repository.
-
-To publish the
-[18F hubot-slack-github-issues configuration validator](https://pages.18f.gov/hubot-slack-github-issues),
-copy `config-validator/index.html` and `config-validator/config-validator.js`
-to the root of the
-[`18f-pages` branch of the repository](https://github.com/18F/hubot-slack-github-issues/tree/18f-pages).
 
 ## Contributing
 

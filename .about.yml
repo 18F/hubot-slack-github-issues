@@ -33,7 +33,7 @@ tags:
 
 # Should this repo have automated tests? If so, set to `true`. (required)
 # values: true, false
-testable: true
+testable: false
 
 # Team members contributing to the project (required)
 # Items:
@@ -46,18 +46,18 @@ team:
 
 # Partners for whom the project is developed
 #partners:
-#- 
+#-
 
 # Organizations or individuals who have adopted the project for their own use
 # Items:
 # - id: The name of the organization or individual
 #   url: A URL to the user's version of the project
 #users:
-#- 
+#-
 
 # Brief descriptions of significant project developments
 #milestones:
-#- 
+#-
 
 # Technologies used to build the project
 stack:
@@ -78,7 +78,7 @@ stack:
 #   url: URL for detailed information
 #   badge: URL for the status badge
 #services:
-#- 
+#-
 
 # Licenses that apply to the project and/or its components (required)
 # Items by property name pattern:
@@ -92,14 +92,14 @@ licenses:
 
 # Blogs or websites associated with project development
 #blog:
-#- 
+#-
 
 # Links to project artifacts
 # Items:
 # - url: URL for the link
 #   text: Anchor text for the link
 #links:
-#- 
+#-
 
 # URIs for points-of-contact
 # Items:
