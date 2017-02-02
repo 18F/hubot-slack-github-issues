@@ -1,3 +1,9 @@
+# MOVED
+
+This project is now maintained at [mbland/hubot-slack-github-issues](https://github.com/mbland/hubot-slack-github-issues).  The npm package name has not changed, only the primary maintainer!
+
+---
+
 # hubot-slack-github-issues
 
 [![NPM](https://nodei.co/npm/hubot-slack-github-issues.png?compact=true)](https://nodei.co/npm/hubot-slack-github-issues/)<br/>
@@ -52,13 +58,13 @@ Here are instructions for installing this plugin and putting it into use. If you
    $ npm install '18f/hubot-slack#3.4.2-handle-reaction-added' \
        hubot-slack-github-issues --save
    ```
-   
+
    **Note:** This plugin depends upon
 [18F/hubot-slack#3.4.2-handle-reaction-added](https://github.com/18F/hubot-slack/tree/3.4.2-handle-reaction-added),
 which in turn depends upon
 [18F/node-slack-client#1.5.0-handle-reaction-added](https://github.com/18F/node-slack-client/tree/1.5.0-handle-reaction-added).
 These packages are custom forks of the
-[hubot-slack](https://www.npmjs.com/package/hubot-slack) and 
+[hubot-slack](https://www.npmjs.com/package/hubot-slack) and
 [slack-client](https://www.npmjs.com/package/slack-client) packages that have
 had support for the [`reaction_added`
 event](https://api.slack.com/events/reaction_added) patched in. When those official packages have been updated to include `reaction_added`
